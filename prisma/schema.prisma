@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  content   String
+  heroImage String
+  tags      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Trip {
+  id           String   @id @default(cuid())
+  destination  String
+  date         DateTime
+  description  String
+  heroImage    String
+  locationName String
+  images       Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  heroImage   String
+  techStack   String
+  images      Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Profile {
+  id        String   @id @default(cuid())
+  name      String
+  bio       String
+  photoUrl  String
+  location  String
+  role      String
+  email     String
+  links     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
