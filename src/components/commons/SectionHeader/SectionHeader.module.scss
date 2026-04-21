@@ -1,0 +1,17 @@
+.header {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.title {
+  color: var(--brand-black);
+  font-size: 2.25rem;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
