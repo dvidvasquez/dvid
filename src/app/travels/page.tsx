@@ -1,0 +1,17 @@
+import { FeedList } from "@/components/commons/FeedList";
+import { SectionHeader } from "@/components/commons/SectionHeader";
+import styles from "../page.module.scss";
+import { getTravelFeed } from "@/services/travels.service";
+
+export default async function TravelsPage() {
+  const travelFeed = await getTravelFeed();
+
+  return (
+    <main className={styles.main}>
+      <div className={styles.feedShell}>
+        <SectionHeader title="Viajes" subtitle="Relatos y experiencias de mis aventuras por el mundo" />
+        <FeedList items={travelFeed} />
+      </div>
+    </main>
+  );
+}

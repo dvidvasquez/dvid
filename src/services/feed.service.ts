@@ -7,7 +7,7 @@ export type GlobalFeedItem = {
   type: FeedType;
   title: string;
   excerpt: string;
-  badge: string;
+  badge?: string;
   createdAt: Date;
   heroImage: string;
 };
