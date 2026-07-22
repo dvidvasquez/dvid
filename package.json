@@ -7,12 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "prisma:seed": "npx tsx prisma/seed.ts"
+    "prisma:seed": "npx tsx prisma/seed.ts",
+    "storage:setup": "npx tsx scripts/setup-storage.ts",
+    "storage:upload": "npx tsx scripts/upload-media.ts"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.7.0",
+    "@supabase/supabase-js": "^2.110.8",
     "next": "16.2.4",
     "pg": "^8.20.0",
     "postgres": "^3.4.9",
