@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mi Cuartel Digital
 
-## Getting Started
+Portafolio personal estilo red social: un feed que combina blog, viajes y proyectos en una sola línea de tiempo, más vistas dedicadas por sección y un perfil.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- [Next.js 16](https://nextjs.org) (App Router, Server Components)
+- [Prisma 7](https://www.prisma.io) con adapter `@prisma/adapter-pg` sobre PostgreSQL (Supabase)
+- SCSS Modules para estilos de componente + design tokens en `src/styles/theme.css`
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ver [AGENTS.md](./AGENTS.md) para las convenciones de arquitectura del proyecto.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Empezando
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Crea un archivo `.env` con `DATABASE_URL` apuntando a tu instancia de PostgreSQL.
+2. Instala dependencias:
 
-## Learn More
+   ```bash
+   npm install
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+3. Aplica el esquema de Prisma y carga datos de ejemplo:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```bash
+   npx prisma db push
+   npm run prisma:seed
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. Corre el servidor de desarrollo:
 
-## Deploy on Vercel
+   ```bash
+   npm run dev
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   Abre [http://localhost:3000](http://localhost:3000).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Scripts
+
+- `npm run dev` — servidor de desarrollo
+- `npm run build` — build de producción
+- `npm run start` — sirve el build de producción
+- `npm run lint` — ESLint
+- `npm run prisma:seed` — carga datos de ejemplo (posts, viajes, proyectos, perfil)
