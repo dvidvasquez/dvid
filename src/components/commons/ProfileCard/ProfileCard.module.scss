@@ -1,0 +1,59 @@
+.card {
+  display: grid;
+  justify-items: center;
+  gap: 0.25rem;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  background: var(--brand-white);
+  padding: 1.5rem 1rem;
+  text-align: center;
+}
+
+.photo {
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 0.5rem;
+}
+
+.name {
+  color: var(--brand-black);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.role {
+  color: var(--brand-red);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.location {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.bio {
+  margin-top: 0.75rem;
+  color: color-mix(in srgb, var(--brand-black) 80%, transparent);
+  font-size: 1rem;
+}
+
+.email {
+  margin-top: 0.75rem;
+  color: var(--brand-red);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.links {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+
+  a {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+}

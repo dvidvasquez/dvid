@@ -18,3 +18,7 @@ export async function getTravelFeed(): Promise<GlobalFeedItem[]> {
 
   return normalizedTrips;
 }
+
+export async function getTripById(id: string) {
+  return db.trip.findUnique({ where: { id } });
+}

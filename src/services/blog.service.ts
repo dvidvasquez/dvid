@@ -14,7 +14,12 @@ export async function getBlogFeed(): Promise<GlobalFeedItem[]> {
     badge: undefined,
     createdAt: post.createdAt,
     heroImage: post.heroImage,
+    slug: post.slug,
   }));
 
   return normalizedPosts;
+}
+
+export async function getPostBySlug(slug: string) {
+  return db.post.findUnique({ where: { slug } });
 }

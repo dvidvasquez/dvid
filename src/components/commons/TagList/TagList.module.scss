@@ -1,0 +1,14 @@
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  color: var(--brand-black);
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}

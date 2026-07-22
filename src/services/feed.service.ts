@@ -10,6 +10,7 @@ export type GlobalFeedItem = {
   badge?: string;
   createdAt: Date;
   heroImage: string;
+  slug?: string;
 };
 
 export async function getGlobalFeed(): Promise<GlobalFeedItem[]> {
@@ -33,6 +34,7 @@ export async function getGlobalFeed(): Promise<GlobalFeedItem[]> {
     badge: "BLOG",
     createdAt: post.createdAt,
     heroImage: post.heroImage,
+    slug: post.slug,
   }));
 
   const normalizedTrips: GlobalFeedItem[] = trips.map((trip) => ({

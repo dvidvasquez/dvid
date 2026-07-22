@@ -18,3 +18,7 @@ export async function getProjectFeed(): Promise<GlobalFeedItem[]> {
 
   return normalizedProjects;
 }
+
+export async function getProjectById(id: string) {
+  return db.project.findUnique({ where: { id } });
+}
