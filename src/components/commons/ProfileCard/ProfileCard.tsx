@@ -9,7 +9,6 @@ type ProfileCardProps = {
 const LINK_LABELS: Record<keyof Profile["links"], string> = {
   github: "GitHub",
   linkedin: "LinkedIn",
-  website: "Sitio web",
 };
 
 export function ProfileCard({ profile }: ProfileCardProps) {

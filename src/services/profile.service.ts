@@ -3,7 +3,6 @@ import { db } from "@/lib/db";
 export type ProfileLinks = {
   github?: string;
   linkedin?: string;
-  website?: string;
 };
 
 export type Profile = {
