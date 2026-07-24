@@ -3,6 +3,8 @@ import { SectionHeader } from "@/components/commons/SectionHeader";
 import styles from "../page.module.scss";
 import { getTravelFeed } from "@/services/travels.service";
 
+export const revalidate = 60;
+
 export default async function TravelsPage() {
   const travelFeed = await getTravelFeed();
 

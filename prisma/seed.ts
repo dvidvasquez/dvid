@@ -4,6 +4,20 @@ import { PrismaClient } from "@prisma/client";
 import pg from "pg";
 import { getPublicMediaUrl } from "../src/lib/supabaseStorage";
 
+const CONFIRM_FLAG = "--yes";
+
+if (!process.argv.includes(CONFIRM_FLAG)) {
+  console.error(
+    [
+      "Este script borra TODOS los posts, viajes, proyectos y el perfil, y los reemplaza por datos de ejemplo.",
+      "Si ya tienes contenido real cargado (por ejemplo desde el Table Editor de Supabase), esto lo va a destruir.",
+      "",
+      `Si estas seguro, corre: npm run prisma:seed -- ${CONFIRM_FLAG}`,
+    ].join("\n"),
+  );
+  process.exit(1);
+}
+
 const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {

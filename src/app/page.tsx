@@ -3,6 +3,8 @@ import { SectionHeader } from "@/components/commons/SectionHeader";
 import { getGlobalFeed } from "@/services/feed.service";
 import styles from "./page.module.scss";
 
+export const revalidate = 60;
+
 export default async function Home() {
   const feed = await getGlobalFeed();
 

@@ -33,12 +33,13 @@ Ver [AGENTS.md](./AGENTS.md) para las convenciones de arquitectura del proyecto.
    npm run storage:setup
    ```
 
-4. Aplica el esquema de Prisma y carga datos de ejemplo:
+4. Aplica el esquema de Prisma:
 
    ```bash
    npx prisma db push
-   npm run prisma:seed
    ```
+
+   Si es un entorno nuevo (sin contenido real todavía), puedes cargar datos de ejemplo con `npm run prisma:seed -- --yes` — ver advertencia en [Scripts](#scripts).
 
 5. Corre el servidor de desarrollo:
 
@@ -64,6 +65,6 @@ El comando imprime la URL pública final; esa es la que va en `heroImage`, `phot
 - `npm run build` — build de producción
 - `npm run start` — sirve el build de producción
 - `npm run lint` — ESLint
-- `npm run prisma:seed` — carga datos de ejemplo (posts, viajes, proyectos, perfil)
+- `npm run prisma:seed -- --yes` — ⚠️ borra y recrea posts, viajes, proyectos y perfil con datos de ejemplo. Solo para bootstrap inicial de un entorno nuevo; **no correrlo** una vez haya contenido real (por ejemplo cargado desde el Table Editor de Supabase), porque lo destruye. El flag `--yes` es obligatorio a propósito, para evitar correrlo sin querer.
 - `npm run storage:setup` — crea el bucket público `media` en Supabase Storage si no existe
 - `npm run storage:upload -- <archivo> <ruta-en-bucket>` — sube un archivo a Storage y devuelve su URL pública

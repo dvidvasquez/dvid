@@ -3,6 +3,8 @@ import { SectionHeader } from "@/components/commons/SectionHeader";
 import { getBlogFeed } from "@/services/blog.service";
 import styles from "../page.module.scss";
 
+export const revalidate = 60;
+
 export default async function BlogPage() {
   const blogFeed = await getBlogFeed();
 

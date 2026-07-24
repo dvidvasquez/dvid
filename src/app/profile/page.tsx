@@ -3,6 +3,8 @@ import { SectionHeader } from "@/components/commons/SectionHeader";
 import { getProfile } from "@/services/profile.service";
 import styles from "../page.module.scss";
 
+export const revalidate = 60;
+
 export default async function ProfilePage() {
   const profile = await getProfile();
 
