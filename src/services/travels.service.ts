@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { getExcerpt } from "@/utils/getExcerpt";
 import type { GlobalFeedItem } from "./feed.service";
 
 export async function getTravelFeed(): Promise<GlobalFeedItem[]> {
@@ -10,7 +11,7 @@ export async function getTravelFeed(): Promise<GlobalFeedItem[]> {
     id: trip.id,
     type: "travel",
     title: `Explorando ${trip.destination}`,
-    excerpt: trip.description,
+    excerpt: getExcerpt(trip.description),
     badge: undefined,
     createdAt: trip.createdAt,
     heroImage: trip.heroImage,
