@@ -8,6 +8,12 @@ test("retorna minutos cuando es menos de una hora", () => {
   assert.equal(value, "Hace unos minutos");
 });
 
+test("usa singular cuando es exactamente una hora", () => {
+  const now = Date.now();
+  const value = getRelativeTimeLabel(new Date(now - 90 * 60 * 1000));
+  assert.equal(value, "Hace 1 hora");
+});
+
 test("retorna horas cuando es menos de 24 horas", () => {
   const now = Date.now();
   const value = getRelativeTimeLabel(new Date(now - 3 * 60 * 60 * 1000));
@@ -23,5 +29,5 @@ test("retorna ayer cuando es un dia", () => {
 test("retorna dias cuando supera un dia", () => {
   const now = Date.now();
   const value = getRelativeTimeLabel(new Date(now - 4 * 24 * 60 * 60 * 1000));
-  assert.equal(value, "Hace 4 dias");
+  assert.equal(value, "Hace 4 días");
 });
