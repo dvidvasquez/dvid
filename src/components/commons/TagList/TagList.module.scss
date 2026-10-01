@@ -1,14 +1,17 @@
 .list {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 0.5rem;
 }
 
 .chip {
-  border-radius: var(--radius-sm);
-  background: var(--surface-muted);
-  color: var(--brand-black);
-  padding: 0.25rem 0.625rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--surface-base);
+  box-shadow: var(--shadow-inset);
+  color: var(--text-secondary);
+  padding: 0.3125rem 0.75rem;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 500;
 }

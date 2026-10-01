@@ -29,8 +29,8 @@ export function ProfileCard({ profile }: ProfileCardProps) {
       <p className={styles.role}>{profile.role}</p>
       <p className={styles.location}>{profile.location}</p>
       <p className={styles.bio}>{profile.bio}</p>
-      <a className={styles.email} href={`mailto:${profile.email}`}>
-        {profile.email}
+      <a className={styles.email} href={`mailto:${profile.email}`} title={profile.email}>
+        Escríbeme
       </a>
       {links.length > 0 && (
         <ul className={styles.links}>

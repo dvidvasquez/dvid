@@ -1,46 +1,89 @@
 .cardLink {
   display: block;
+  height: 100%;
+  border-radius: var(--radius-lg);
   color: inherit;
   text-decoration: none;
 }
 
 .card {
-  border: 1px solid rgba(17, 17, 17, 0.08);
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft);
-  background: var(--brand-white);
-  padding: 1rem;
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-card);
+  transition:
+    transform 200ms ease,
+    border-color 200ms ease;
+
+  .cardLink:hover & {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--brand-red) 45%, var(--border-subtle));
+  }
+}
+
+.media {
+  position: relative;
+  background: var(--surface-muted);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--gradient-image-fade);
+  }
+}
+
+.image {
+  object-fit: cover;
+  transition: transform 400ms ease;
+
+  .cardLink:hover & {
+    transform: scale(1.04);
+  }
 }
 
 .badge {
-  display: inline-flex;
-  border-radius: var(--radius-sm);
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 1;
+  border-radius: var(--radius-pill);
   background: var(--brand-red);
+  box-shadow: var(--shadow-glow);
   color: var(--brand-white);
-  padding: 0.125rem 0.5rem;
-  font-size: 10px;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.625rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
+}
+
+.body {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.25rem;
 }
 
 .meta {
-  margin-top: 0.5rem;
   color: var(--text-muted);
   font-size: 0.75rem;
 }
 
 .title {
-  margin-top: 0.25rem;
-  color: var(--brand-black);
-  font-size: 1.5rem;
+  color: var(--text-primary);
   line-height: 1.2;
   font-weight: 600;
 }
 
 .excerpt {
-  margin-top: 0.5rem;
-  color: color-mix(in srgb, var(--brand-black) 80%, transparent);
-  font-size: 1rem;
+  margin-top: 0.25rem;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  font-weight: 300;
+  line-height: 1.6;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -48,8 +91,49 @@
 }
 
 .action {
-  margin-top: 0.75rem;
+  margin-top: 0.5rem;
   color: var(--brand-red);
   font-size: 0.875rem;
   font-weight: 600;
+}
+
+.featured {
+  .media {
+    aspect-ratio: 16 / 10;
+  }
+
+  .body {
+    margin-top: -2rem;
+    padding: 0 1.25rem 1.25rem;
+  }
+
+  .title {
+    font-size: 1.375rem;
+  }
+}
+
+.tile {
+  .media {
+    aspect-ratio: 4 / 5;
+  }
+
+  .body {
+    position: absolute;
+    inset: auto 0 0;
+    padding: 0.875rem;
+    text-align: center;
+  }
+
+  .meta {
+    order: 2;
+    font-size: 0.6875rem;
+  }
+
+  .title {
+    font-size: 0.9375rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 }

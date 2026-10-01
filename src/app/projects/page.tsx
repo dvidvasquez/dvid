@@ -11,7 +11,7 @@ export default async function ProjectsPage() {
     <main className={styles.main}>
       <div className={styles.feedShell}>
         <SectionHeader title="Proyectos" subtitle="Mis proyectos personales y colaborativos en desarrollo y tecnología" />
-        <FeedList items={projectFeed} />
+        <FeedList items={projectFeed} layout="grid" />
       </div>
     </main>
   );
