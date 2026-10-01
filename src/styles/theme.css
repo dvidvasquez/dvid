@@ -22,6 +22,8 @@
   --text-secondary: var(--brand-silver);
   --text-muted: color-mix(in srgb, var(--brand-silver) 55%, var(--brand-ash));
 
+  --font-display: var(--font-syne), var(--font-outfit), sans-serif;
+
   --radius-sm: 0.75rem;
   --radius-md: 1.25rem;
   --radius-lg: 1.75rem;

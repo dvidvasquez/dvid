@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
 import { BottomNav } from "@/components/commons/BottomNav";
-import { Outfit } from "next/font/google";
+import { Outfit, Syne } from "next/font/google";
 import "../styles/theme.css";
 import "./globals.css";
 
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
+});
+
+const syne = Syne({
+  variable: "--font-syne",
+  subsets: ["latin"],
+  weight: ["600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -22,7 +28,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${outfit.variable} h-full antialiased`}
+      className={`${outfit.variable} ${syne.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col pb-28">
         {children}

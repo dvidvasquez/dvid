@@ -1,0 +1,57 @@
+.breakline {
+  position: relative;
+  height: 1px;
+  overflow: visible;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--brand-graphite) 90%, transparent) 20%,
+    color-mix(in srgb, var(--brand-ash) 80%, transparent) 50%,
+    color-mix(in srgb, var(--brand-graphite) 90%, transparent) 80%,
+    transparent
+  );
+}
+
+.start {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--brand-ash) 80%, transparent),
+    color-mix(in srgb, var(--brand-graphite) 70%, transparent) 60%,
+    transparent
+  );
+}
+
+.spark {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 22%;
+  height: 3px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, transparent, var(--brand-red), transparent);
+  box-shadow: var(--shadow-glow);
+  animation: travel 6s ease-in-out infinite alternate;
+}
+
+.start .spark {
+  width: 3rem;
+  background: var(--brand-red);
+  animation: none;
+}
+
+@keyframes travel {
+  from {
+    left: 0;
+  }
+
+  to {
+    left: 78%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spark {
+    left: 39%;
+    animation: none;
+  }
+}
