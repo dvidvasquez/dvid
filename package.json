@@ -10,7 +10,8 @@
     "postinstall": "prisma generate",
     "prisma:seed": "npx tsx prisma/seed.ts",
     "storage:setup": "npx tsx scripts/setup-storage.ts",
-    "storage:upload": "npx tsx scripts/upload-media.ts"
+    "storage:upload": "npx tsx scripts/upload-media.ts",
+    "test": "tsx --test src/utils/tests/*.test.ts"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -19,7 +20,6 @@
     "@supabase/supabase-js": "^2.110.8",
     "next": "16.2.4",
     "pg": "^8.20.0",
-    "postgres": "^3.4.9",
     "prisma": "^7.7.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
@@ -29,10 +29,12 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^16.6.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "sass": "^1.99.0",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }

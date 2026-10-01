@@ -65,6 +65,7 @@ El comando imprime la URL pública final; esa es la que va en `heroImage`, `phot
 - `npm run build` — build de producción
 - `npm run start` — sirve el build de producción
 - `npm run lint` — ESLint
+- `npm test` — pruebas unitarias de `src/utils` (runner nativo `node:test` vía `tsx`)
 - `npm run prisma:seed -- --yes` — ⚠️ borra y recrea posts, viajes, proyectos y perfil con datos de ejemplo. Solo para bootstrap inicial de un entorno nuevo; **no correrlo** una vez haya contenido real (por ejemplo cargado desde el Table Editor de Supabase), porque lo destruye. El flag `--yes` es obligatorio a propósito, para evitar correrlo sin querer.
 - `npm run storage:setup` — crea el bucket público `media` en Supabase Storage si no existe
 - `npm run storage:upload -- <archivo> <ruta-en-bucket>` — sube un archivo a Storage y devuelve su URL pública

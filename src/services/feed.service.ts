@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { getExcerpt } from "@/utils/getExcerpt";
 
 export type FeedType = "blog" | "travel" | "project";
 
@@ -30,7 +31,7 @@ export async function getGlobalFeed(): Promise<GlobalFeedItem[]> {
     id: post.id,
     type: "blog",
     title: post.title,
-    excerpt: post.content,
+    excerpt: getExcerpt(post.content),
     badge: "BLOG",
     createdAt: post.createdAt,
     heroImage: post.heroImage,
@@ -41,7 +42,7 @@ export async function getGlobalFeed(): Promise<GlobalFeedItem[]> {
     id: trip.id,
     type: "travel",
     title: `Explorando ${trip.destination}`,
-    excerpt: trip.description,
+    excerpt: getExcerpt(trip.description),
     badge: "VIAJE",
     createdAt: trip.createdAt,
     heroImage: trip.heroImage,
@@ -51,7 +52,7 @@ export async function getGlobalFeed(): Promise<GlobalFeedItem[]> {
     id: project.id,
     type: "project",
     title: project.title,
-    excerpt: project.description,
+    excerpt: getExcerpt(project.description),
     badge: "PROYECTO",
     createdAt: project.createdAt,
     heroImage: project.heroImage,

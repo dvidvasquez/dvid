@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { getExcerpt } from "@/utils/getExcerpt";
 import type { GlobalFeedItem } from "./feed.service";
 
 export async function getProjectFeed(): Promise<GlobalFeedItem[]> {
@@ -10,7 +11,7 @@ export async function getProjectFeed(): Promise<GlobalFeedItem[]> {
     id: project.id,
     type: "project",
     title: project.title,
-    excerpt: project.description,
+    excerpt: getExcerpt(project.description),
     badge: undefined,
     createdAt: project.createdAt,
     heroImage: project.heroImage,
