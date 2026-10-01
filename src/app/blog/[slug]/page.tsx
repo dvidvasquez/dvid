@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { DetailView } from "@/components/commons/DetailView";
 import { getPostBySlug } from "@/services/blog.service";
+import { getDefaultCover } from "@/utils/getCoverImage";
 import { getRelativeTimeLabel } from "@/utils/getRelativeTimeLabel";
 import { parseTags } from "@/utils/parseTags";
 import styles from "../../page.module.scss";
@@ -24,6 +25,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           title={post.title}
           meta={getRelativeTimeLabel(post.createdAt)}
           heroImage={post.heroImage}
+          fallbackImage={getDefaultCover("blog")}
           description={post.content}
           tags={parseTags(post.tags)}
         />

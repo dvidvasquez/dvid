@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { getCoverImage } from "@/utils/getCoverImage";
 import { getExcerpt } from "@/utils/getExcerpt";
 
 export type FeedType = "blog" | "travel" | "project";
@@ -34,7 +35,7 @@ export async function getGlobalFeed(): Promise<GlobalFeedItem[]> {
     excerpt: getExcerpt(post.content),
     badge: "BLOG",
     createdAt: post.createdAt,
-    heroImage: post.heroImage,
+    heroImage: getCoverImage(post.heroImage, "blog"),
     slug: post.slug,
   }));
 
@@ -45,7 +46,7 @@ export async function getGlobalFeed(): Promise<GlobalFeedItem[]> {
     excerpt: getExcerpt(trip.description),
     badge: "VIAJE",
     createdAt: trip.createdAt,
-    heroImage: trip.heroImage,
+    heroImage: getCoverImage(trip.heroImage, "travel"),
   }));
 
   const normalizedProjects: GlobalFeedItem[] = projects.map((project) => ({
@@ -55,7 +56,7 @@ export async function getGlobalFeed(): Promise<GlobalFeedItem[]> {
     excerpt: getExcerpt(project.description),
     badge: "PROYECTO",
     createdAt: project.createdAt,
-    heroImage: project.heroImage,
+    heroImage: getCoverImage(project.heroImage, "project"),
   }));
 
   return [...normalizedPosts, ...normalizedTrips, ...normalizedProjects].sort(

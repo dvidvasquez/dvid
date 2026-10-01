@@ -1,6 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
+import { CoverImage } from "@/components/commons/CoverImage";
 import type { GlobalFeedItem } from "@/services/feed.service";
+import { getDefaultCover } from "@/utils/getCoverImage";
 import { getFeedItemHref } from "@/utils/getFeedItemHref";
 import { getRelativeTimeLabel } from "@/utils/getRelativeTimeLabel";
 import styles from "./FeedCard.module.scss";
@@ -22,8 +23,9 @@ export function FeedCard({ item, variant = "featured" }: FeedCardProps) {
     <Link href={getFeedItemHref(item)} className={styles.cardLink}>
       <article className={`${styles.card} ${isTile ? styles.tile : styles.featured}`}>
         <div className={styles.media}>
-          <Image
+          <CoverImage
             src={item.heroImage}
+            fallbackSrc={getDefaultCover(item.type)}
             alt=""
             fill
             sizes={isTile ? TILE_SIZES : FEATURED_SIZES}
