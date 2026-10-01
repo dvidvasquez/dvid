@@ -2,7 +2,7 @@
   margin-inline: auto;
   min-height: 100vh;
   width: 100%;
-  max-width: 28rem;
+  max-width: 76rem;
 }
 
 .feedShell {
@@ -11,8 +11,15 @@
   padding: 1rem;
 }
 
-@media (min-width: 640px) {
-  .main {
-    padding-inline: 1.25rem;
+@media (min-width: 48rem) {
+  .feedShell {
+    gap: 1.5rem;
+    padding: 1.5rem 2rem 2rem;
+  }
+}
+
+@media (min-width: 72rem) {
+  .feedShell {
+    padding-inline: 2.5rem;
   }
 }

@@ -7,6 +7,9 @@ import styles from "./FeedCard.module.scss";
 
 export type FeedCardVariant = "featured" | "tile";
 
+const FEATURED_SIZES = "(min-width: 72rem) 24rem, (min-width: 48rem) 50vw, 100vw";
+const TILE_SIZES = "(min-width: 72rem) 18rem, (min-width: 48rem) 33vw, 50vw";
+
 type FeedCardProps = {
   item: GlobalFeedItem;
   variant?: FeedCardVariant;
@@ -23,7 +26,7 @@ export function FeedCard({ item, variant = "featured" }: FeedCardProps) {
             src={item.heroImage}
             alt=""
             fill
-            sizes={isTile ? "(max-width: 28rem) 50vw, 14rem" : "(max-width: 28rem) 100vw, 28rem"}
+            sizes={isTile ? TILE_SIZES : FEATURED_SIZES}
             className={styles.image}
           />
           {item.badge && <span className={styles.badge}>{item.badge}</span>}

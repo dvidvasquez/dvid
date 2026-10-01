@@ -137,3 +137,9 @@
     overflow: hidden;
   }
 }
+
+@media (min-width: 72rem) {
+  .tile .title {
+    font-size: 1.0625rem;
+  }
+}
