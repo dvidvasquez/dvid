@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { DetailView } from "@/components/commons/DetailView";
 import { getPostBySlug } from "@/services/blog.service";
 import { getRelativeTimeLabel } from "@/utils/getRelativeTimeLabel";
+import { parseTags } from "@/utils/parseTags";
 import styles from "../../page.module.scss";
 
 type BlogPostPageProps = {
@@ -24,7 +25,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           meta={getRelativeTimeLabel(post.createdAt)}
           heroImage={post.heroImage}
           description={post.content}
-          tags={post.tags.split(",")}
+          tags={parseTags(post.tags)}
         />
       </div>
     </main>
