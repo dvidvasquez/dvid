@@ -16,7 +16,7 @@ export function DetailView({ title, meta, heroImage, description, tags, images }
   return (
     <article className={styles.detail}>
       <div className={styles.heroWrapper}>
-        <Image src={heroImage} alt={title} fill priority sizes="(max-width: 28rem) 100vw, 28rem" className={styles.hero} />
+        <Image src={heroImage} alt={title} fill priority sizes="(min-width: 64rem) 40rem, 100vw" className={styles.hero} />
       </div>
       <div className={styles.panel}>
         <header className={styles.header}>

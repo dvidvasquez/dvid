@@ -1,7 +1,7 @@
 .list {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: var(--tag-align, center);
   gap: 0.5rem;
 }
 

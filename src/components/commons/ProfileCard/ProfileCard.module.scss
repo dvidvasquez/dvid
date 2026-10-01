@@ -90,3 +90,26 @@
     }
   }
 }
+
+@media (min-width: 48rem) {
+  .card {
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 2.5rem;
+    justify-items: start;
+    align-content: start;
+    padding: 2.5rem 3rem;
+    text-align: left;
+  }
+
+  .photo {
+    grid-row: 1 / span 7;
+    align-self: start;
+    width: 9rem;
+    height: 9rem;
+    margin-bottom: 0;
+  }
+
+  .bio {
+    max-width: 60ch;
+  }
+}

@@ -67,3 +67,35 @@
   line-height: 1.7;
   white-space: pre-line;
 }
+
+@media (min-width: 64rem) {
+  .detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  }
+
+  .heroWrapper {
+    aspect-ratio: auto;
+    min-height: 34rem;
+
+    &::after {
+      background: linear-gradient(90deg, transparent 70%, var(--brand-charcoal) 100%);
+    }
+  }
+
+  .panel {
+    --tag-align: flex-start;
+    align-content: start;
+    margin-top: 0;
+    padding: 3rem 3rem 3rem 2rem;
+  }
+
+  .header {
+    justify-items: start;
+    text-align: left;
+  }
+
+  .title {
+    font-size: 2.5rem;
+  }
+}
