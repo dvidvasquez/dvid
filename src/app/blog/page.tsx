@@ -11,7 +11,7 @@ export default async function BlogPage() {
   return (
     <main className={styles.main}>
       <div className={styles.feedShell}>
-        <SectionHeader eyebrow="02 · Escritos" title="Blog" subtitle="Artículos y reflexiones sobre desarrollo y tecnología" />
+        <SectionHeader title="Blog" />
         <FeedList items={blogFeed} layout="grid" />
       </div>
     </main>

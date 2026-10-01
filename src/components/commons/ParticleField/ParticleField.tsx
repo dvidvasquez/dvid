@@ -13,7 +13,8 @@ type Particle = {
   accent: boolean;
 };
 
-const LINK_DISTANCE = 96;
+const MIN_LINK_DISTANCE = 96;
+const MAX_LINK_DISTANCE = 150;
 const POINTER_RADIUS = 140;
 const MAX_SPEED = 0.35;
 const ACCENT_RATIO = 0.14;
@@ -49,6 +50,7 @@ export function ParticleField() {
 
     let width = 0;
     let height = 0;
+    let linkDistance = MIN_LINK_DISTANCE;
     let particles: Particle[] = [];
     let frameId = 0;
     let visible = true;
@@ -64,6 +66,8 @@ export function ParticleField() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       const count = getParticleCount(width, height);
+      const spacing = count > 0 ? Math.sqrt((width * height) / count) : 0;
+      linkDistance = Math.min(MAX_LINK_DISTANCE, Math.max(MIN_LINK_DISTANCE, spacing * 1.4));
       particles = particles.slice(0, count);
       while (particles.length < count) particles.push(createParticle(width, height));
       particles.forEach((p) => {
@@ -105,8 +109,8 @@ export function ParticleField() {
         for (let j = i + 1; j < particles.length; j++) {
           const b = particles[j];
           const distance = Math.hypot(a.x - b.x, a.y - b.y);
-          if (distance < LINK_DISTANCE) {
-            ctx.globalAlpha = (1 - distance / LINK_DISTANCE) * 0.28;
+          if (distance < linkDistance) {
+            ctx.globalAlpha = (1 - distance / linkDistance) * 0.28;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
             ctx.lineTo(b.x, b.y);

@@ -1,30 +1,107 @@
-.banner {
-  display: grid;
-  gap: 0.5rem;
-  margin-inline: -1rem;
-  padding-bottom: 0.75rem;
-}
-
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  min-height: 32rem;
   overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
 }
 
 .field {
-  position: relative;
-  height: 18rem;
-  mask-image: radial-gradient(ellipse 75% 70% at 50% 50%, black 45%, transparent 100%);
+  position: absolute;
+  inset: 0;
+  mask-image: linear-gradient(180deg, black 65%, transparent 100%);
 
   &::before {
     content: "";
     position: absolute;
-    inset: 15% 20%;
-    background: radial-gradient(circle, color-mix(in srgb, var(--brand-red) 22%, transparent), transparent 70%);
-    filter: blur(24px);
+    inset: 20% 15% 30%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--brand-red) 18%, transparent), transparent 70%);
+    filter: blur(40px);
     pointer-events: none;
+  }
+}
+
+.signature {
+  position: absolute;
+  inset: auto 0 7.5rem;
+  display: grid;
+  justify-items: center;
+  gap: 1.25rem;
+  pointer-events: none;
+}
+
+.name {
+  padding-left: 0.4em;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 7vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, var(--brand-silver), var(--brand-ash));
+  background-clip: text;
+  color: transparent;
+  opacity: 0.55;
+  animation: reveal 1.6s ease-out both 0.3s;
+
+  &::after {
+    content: ".";
+    margin-left: -0.3em;
+    color: var(--brand-red);
+    -webkit-text-fill-color: var(--brand-red);
+  }
+}
+
+.scrollCue {
+  position: relative;
+  width: 1px;
+  height: 2.5rem;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--brand-graphite) 80%, transparent);
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 40%;
+    background: var(--brand-red);
+    box-shadow: var(--shadow-glow);
+    animation: drip 2.2s ease-in-out infinite;
+  }
+}
+
+.rule {
+  position: absolute;
+  inset: auto 0 0;
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    letter-spacing: 0.6em;
+  }
+
+  to {
+    opacity: 0.55;
+    letter-spacing: 0.4em;
+  }
+}
+
+@keyframes drip {
+  from {
+    top: -40%;
+  }
+
+  to {
+    top: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .name,
+  .scrollCue::after {
+    animation: none;
   }
 }

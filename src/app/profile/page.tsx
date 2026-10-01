@@ -11,7 +11,7 @@ export default async function ProfilePage() {
   return (
     <main className={styles.main}>
       <div className={styles.feedShell}>
-        <SectionHeader eyebrow="05 · Sobre mí" title="Perfil" subtitle="Quién soy, qué hago y cómo encontrarme" />
+        <SectionHeader title="Perfil" />
         <ProfileCard profile={profile} />
       </div>
     </main>
