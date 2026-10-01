@@ -10,7 +10,7 @@ export default async function ProjectsPage() {
   return (
     <main className={styles.main}>
       <div className={styles.feedShell}>
-        <SectionHeader eyebrow="04 · Laboratorio" title="Proyectos" subtitle="Mis proyectos personales y colaborativos en desarrollo y tecnología" />
+        <SectionHeader title="Proyectos" />
         <FeedList items={projectFeed} layout="grid" />
       </div>
     </main>

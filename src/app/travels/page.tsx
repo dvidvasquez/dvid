@@ -11,7 +11,7 @@ export default async function TravelsPage() {
   return (
     <main className={styles.main}>
       <div className={styles.feedShell}>
-        <SectionHeader eyebrow="03 · Bitácora" title="Viajes" subtitle="Relatos y experiencias de mis aventuras por el mundo" />
+        <SectionHeader title="Viajes" />
         <FeedList items={travelFeed} layout="grid" />
       </div>
     </main>

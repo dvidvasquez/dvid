@@ -8,12 +8,17 @@ type HeroBannerProps = {
 
 export function HeroBanner({ title }: HeroBannerProps) {
   return (
-    <section className={styles.banner}>
-      <h1 className={styles.srOnly}>{title}</h1>
+    <section className={styles.hero}>
       <div className={styles.field}>
         <ParticleField />
       </div>
-      <Breakline />
+      <div className={styles.signature}>
+        <h1 className={styles.name}>{title}</h1>
+        <span className={styles.scrollCue} aria-hidden="true" />
+      </div>
+      <div className={styles.rule}>
+        <Breakline />
+      </div>
     </section>
   );
 }

@@ -11,7 +11,7 @@ test("respeta el minimo en areas pequenas", () => {
 });
 
 test("respeta el maximo en areas grandes", () => {
-  assert.equal(getParticleCount(1920, 1080), 110);
+  assert.equal(getParticleCount(1920, 1080), 160);
 });
 
 test("retorna cero cuando el area es invalida", () => {

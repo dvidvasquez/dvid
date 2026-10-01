@@ -9,11 +9,13 @@ export default async function Home() {
   const feed = await getGlobalFeed();
 
   return (
-    <main className={styles.main}>
-      <div className={styles.feedShell}>
-        <HeroBanner title="Mi Cuartel Digital" />
-        <FeedList items={feed} />
-      </div>
-    </main>
+    <>
+      <HeroBanner title="Dvid" />
+      <main className={styles.main}>
+        <div className={styles.feedShell}>
+          <FeedList items={feed} />
+        </div>
+      </main>
+    </>
   );
 }
