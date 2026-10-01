@@ -7,8 +7,9 @@
 .item {
   position: relative;
   aspect-ratio: 1;
-  border-radius: var(--radius-sm);
   overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
   background: var(--surface-muted);
 }
 

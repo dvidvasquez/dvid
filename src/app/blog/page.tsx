@@ -12,7 +12,7 @@ export default async function BlogPage() {
     <main className={styles.main}>
       <div className={styles.feedShell}>
         <SectionHeader title="Blog" subtitle="Artículos y reflexiones sobre desarrollo y tecnología" />
-        <FeedList items={blogFeed} />
+        <FeedList items={blogFeed} layout="grid" />
       </div>
     </main>
   );

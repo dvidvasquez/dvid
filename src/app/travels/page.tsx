@@ -12,7 +12,7 @@ export default async function TravelsPage() {
     <main className={styles.main}>
       <div className={styles.feedShell}>
         <SectionHeader title="Viajes" subtitle="Relatos y experiencias de mis aventuras por el mundo" />
-        <FeedList items={travelFeed} />
+        <FeedList items={travelFeed} layout="grid" />
       </div>
     </main>
   );

@@ -16,13 +16,18 @@ export function DetailView({ title, meta, heroImage, description, tags, images }
   return (
     <article className={styles.detail}>
       <div className={styles.heroWrapper}>
-        <Image src={heroImage} alt={title} fill className={styles.hero} />
+        <Image src={heroImage} alt={title} fill priority sizes="(max-width: 28rem) 100vw, 28rem" className={styles.hero} />
       </div>
-      <p className={styles.meta}>{meta}</p>
-      <h1 className={styles.title}>{title}</h1>
-      {tags && tags.length > 0 && <TagList items={tags} />}
-      <p className={styles.description}>{description}</p>
-      {images && images.length > 0 && <ImageGallery images={images} alt={title} />}
+      <div className={styles.panel}>
+        <header className={styles.header}>
+          <h1 className={styles.title}>{title}</h1>
+          <span className={styles.divider} aria-hidden="true" />
+          <p className={styles.meta}>{meta}</p>
+        </header>
+        {tags && tags.length > 0 && <TagList items={tags} />}
+        <p className={styles.description}>{description}</p>
+        {images && images.length > 0 && <ImageGallery images={images} alt={title} />}
+      </div>
     </article>
   );
 }

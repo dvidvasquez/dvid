@@ -26,6 +26,7 @@ export function BottomNav() {
                 href={item.href}
                 className={`${styles.link} ${active ? styles.active : ""}`}
                 aria-current={active ? "page" : undefined}
+                title={item.label}
               >
                 <Icon className={styles.icon} aria-hidden="true" />
                 <span className={styles.label}>{item.label}</span>

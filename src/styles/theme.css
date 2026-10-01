@@ -1,14 +1,42 @@
 :root {
-  --brand-red: #b42318;
-  --brand-black: #111111;
-  --brand-white: #ffffff;
-  --surface-muted: #f5f5f5;
-  --text-muted: #6b7280;
+  color-scheme: dark;
 
-  --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
+  /* Paleta de marca */
+  --brand-red: #ce101a;
+  --brand-black: #020202;
+  --brand-charcoal: #161616;
+  --brand-graphite: #424141;
+  --brand-ash: #666362;
+  --brand-silver: #cbcac8;
+  --brand-white: #f4f3f1;
 
-  --shadow-soft: 0 1px 2px rgba(17, 17, 17, 0.08);
-  --shadow-card: 0 8px 24px rgba(17, 17, 17, 0.08);
+  /* Superficies */
+  --surface-base: var(--brand-black);
+  --surface-raised: var(--brand-charcoal);
+  --surface-overlay: color-mix(in srgb, var(--brand-charcoal) 80%, var(--brand-graphite));
+  --surface-muted: color-mix(in srgb, var(--brand-charcoal) 60%, var(--brand-graphite));
+  --border-subtle: color-mix(in srgb, var(--brand-graphite) 55%, transparent);
+
+  /* Texto */
+  --text-primary: var(--brand-white);
+  --text-secondary: var(--brand-silver);
+  --text-muted: color-mix(in srgb, var(--brand-silver) 55%, var(--brand-ash));
+
+  --radius-sm: 0.75rem;
+  --radius-md: 1.25rem;
+  --radius-lg: 1.75rem;
+  --radius-xl: 2.25rem;
+  --radius-pill: 999px;
+
+  --shadow-soft: 0 6px 18px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --shadow-card: 0 18px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --shadow-inset: inset 0 2px 6px rgba(0, 0, 0, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+  --shadow-glow: 0 0 24px color-mix(in srgb, var(--brand-red) 55%, transparent);
+
+  --gradient-image-fade: linear-gradient(
+    180deg,
+    transparent 40%,
+    color-mix(in srgb, var(--brand-charcoal) 85%, transparent) 85%,
+    var(--brand-charcoal) 100%
+  );
 }

@@ -11,7 +11,7 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
     <div className={styles.gallery}>
       {images.map((src) => (
         <div key={src} className={styles.item}>
-          <Image src={src} alt={alt} fill className={styles.image} />
+          <Image src={src} alt={alt} fill sizes="(max-width: 28rem) 33vw, 9rem" className={styles.image} />
         </div>
       ))}
     </div>
