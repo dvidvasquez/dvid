@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { getCoverImage } from "@/utils/getCoverImage";
 import { getExcerpt } from "@/utils/getExcerpt";
 import type { GlobalFeedItem } from "./feed.service";
 
@@ -14,12 +15,13 @@ export async function getProjectFeed(): Promise<GlobalFeedItem[]> {
     excerpt: getExcerpt(project.description),
     badge: undefined,
     createdAt: project.createdAt,
-    heroImage: project.heroImage,
+    heroImage: getCoverImage(project.heroImage, "project"),
   }));
 
   return normalizedProjects;
 }
 
 export async function getProjectById(id: string) {
-  return db.project.findUnique({ where: { id } });
+  const project = await db.project.findUnique({ where: { id } });
+  return project ? { ...project, heroImage: getCoverImage(project.heroImage, "project") } : null;
 }

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { DetailView } from "@/components/commons/DetailView";
 import { getTripById } from "@/services/travels.service";
+import { getDefaultCover } from "@/utils/getCoverImage";
 import { getRelativeTimeLabel } from "@/utils/getRelativeTimeLabel";
 import styles from "../../page.module.scss";
 
@@ -23,6 +24,7 @@ export default async function TravelPage({ params }: TravelPageProps) {
           title={`Explorando ${trip.destination}`}
           meta={`${trip.locationName} · ${getRelativeTimeLabel(trip.createdAt)}`}
           heroImage={trip.heroImage}
+          fallbackImage={getDefaultCover("travel")}
           description={trip.description}
           images={trip.images as string[]}
         />

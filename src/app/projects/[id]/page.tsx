@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { DetailView } from "@/components/commons/DetailView";
 import { getProjectById } from "@/services/projects.service";
+import { getDefaultCover } from "@/utils/getCoverImage";
 import { getRelativeTimeLabel } from "@/utils/getRelativeTimeLabel";
 import { parseTags } from "@/utils/parseTags";
 import styles from "../../page.module.scss";
@@ -24,6 +25,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           title={project.title}
           meta={getRelativeTimeLabel(project.createdAt)}
           heroImage={project.heroImage}
+          fallbackImage={getDefaultCover("project")}
           description={project.description}
           tags={parseTags(project.techStack)}
           images={project.images as string[]}

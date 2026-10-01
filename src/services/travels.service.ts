@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { getCoverImage } from "@/utils/getCoverImage";
 import { getExcerpt } from "@/utils/getExcerpt";
 import type { GlobalFeedItem } from "./feed.service";
 
@@ -14,12 +15,13 @@ export async function getTravelFeed(): Promise<GlobalFeedItem[]> {
     excerpt: getExcerpt(trip.description),
     badge: undefined,
     createdAt: trip.createdAt,
-    heroImage: trip.heroImage,
+    heroImage: getCoverImage(trip.heroImage, "travel"),
   }));
 
   return normalizedTrips;
 }
 
 export async function getTripById(id: string) {
-  return db.trip.findUnique({ where: { id } });
+  const trip = await db.trip.findUnique({ where: { id } });
+  return trip ? { ...trip, heroImage: getCoverImage(trip.heroImage, "travel") } : null;
 }

@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { getCoverImage } from "@/utils/getCoverImage";
 import { getExcerpt } from "@/utils/getExcerpt";
 import type { GlobalFeedItem } from "./feed.service";
 
@@ -14,7 +15,7 @@ export async function getBlogFeed(): Promise<GlobalFeedItem[]> {
     excerpt: getExcerpt(post.content),
     badge: undefined,
     createdAt: post.createdAt,
-    heroImage: post.heroImage,
+    heroImage: getCoverImage(post.heroImage, "blog"),
     slug: post.slug,
   }));
 
@@ -22,5 +23,6 @@ export async function getBlogFeed(): Promise<GlobalFeedItem[]> {
 }
 
 export async function getPostBySlug(slug: string) {
-  return db.post.findUnique({ where: { slug } });
+  const post = await db.post.findUnique({ where: { slug } });
+  return post ? { ...post, heroImage: getCoverImage(post.heroImage, "blog") } : null;
 }
