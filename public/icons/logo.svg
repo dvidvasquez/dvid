@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<defs>
+  <radialGradient id="bg" cx="35%" cy="25%" r="90%"><stop offset="0" stop-color="#232323"/><stop offset="0.55" stop-color="#161616"/><stop offset="1" stop-color="#020202"/></radialGradient>
+  <radialGradient id="halo" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ce101a" stop-opacity="0.35"/><stop offset="1" stop-color="#ce101a" stop-opacity="0"/></radialGradient>
+  <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f3f1"/><stop offset="0.6" stop-color="#cbcac8"/><stop offset="1" stop-color="#666362"/></linearGradient>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="10" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect x="8" y="8" width="496" height="496" rx="112" fill="url(#bg)" stroke="#424141" stroke-opacity="0.8" stroke-width="4"/>
+<circle cx="256" cy="256" r="230" fill="url(#halo)"/><g transform="translate(-21 0)">
+  
+  <g stroke="#cbcac8" stroke-linecap="round">
+    <line x1="140" y1="128" x2="356" y2="256" stroke-opacity="0.22" stroke-width="3"/>
+    <line x1="140" y1="384" x2="356" y2="256" stroke-opacity="0.22" stroke-width="3"/>
+    <line x1="140" y1="256" x2="356" y2="256" stroke-opacity="0.16" stroke-width="3"/>
+    <line x1="220" y1="128" x2="140" y2="256" stroke-opacity="0.14" stroke-width="3"/>
+    <line x1="220" y1="384" x2="140" y2="256" stroke-opacity="0.14" stroke-width="3"/>
+    <line x1="356" y1="256" x2="410" y2="372" stroke="#ce101a" stroke-opacity="0.45" stroke-width="3"/>
+  </g>
+  <path d="M140 128 V384 H220 C308 384 356 328 356 256 C356 184 308 128 220 128 Z" fill="none" stroke="url(#metal)" stroke-width="40" stroke-linejoin="round"/>
+  <circle cx="140" cy="128" r="10" fill="#161616" stroke="#f4f3f1" stroke-width="5"/><circle cx="140" cy="384" r="10" fill="#161616" stroke="#f4f3f1" stroke-width="5"/><circle cx="220" cy="128" r="10" fill="#161616" stroke="#f4f3f1" stroke-width="5"/><circle cx="220" cy="384" r="10" fill="#161616" stroke="#f4f3f1" stroke-width="5"/><circle cx="140" cy="256" r="10" fill="#161616" stroke="#f4f3f1" stroke-width="5"/><circle cx="356" cy="256" r="15" fill="#ce101a" filter="url(#glow)"/>
+  <circle cx="410" cy="372" r="26" fill="#ce101a" filter="url(#glow)"/>
+</g>
+</svg>

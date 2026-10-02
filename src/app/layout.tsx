@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { BottomNav } from "@/components/commons/BottomNav";
+import { BRAND } from "@/constants/brand";
 import { Outfit, Syne } from "next/font/google";
 import "../styles/theme.css";
 import "./globals.css";
@@ -17,7 +18,18 @@ const syne = Syne({
 
 export const metadata: Metadata = {
   title: "Mi Cuartel Digital",
-  description: "Feed combinado de blog, viajes y proyectos",
+  description: BRAND.description,
+  applicationName: BRAND.name,
+  appleWebApp: {
+    capable: true,
+    title: BRAND.name,
+    statusBarStyle: "black",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: BRAND.themeColor,
+  colorScheme: "dark",
 };
 
 export default function RootLayout({
