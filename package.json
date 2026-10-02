@@ -11,13 +11,15 @@
     "prisma:seed": "npx tsx prisma/seed.ts",
     "storage:setup": "npx tsx scripts/setup-storage.ts",
     "storage:upload": "npx tsx scripts/upload-media.ts",
-    "test": "tsx --test src/utils/tests/*.test.ts"
+    "test": "tsx --test src/utils/tests/*.test.ts",
+    "news:check": "npx tsx scripts/check-news-sources.ts"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.7.0",
     "@supabase/supabase-js": "^2.110.8",
+    "fast-xml-parser": "^5.11.2",
     "next": "16.2.4",
     "pg": "^8.20.0",
     "prisma": "^7.7.0",

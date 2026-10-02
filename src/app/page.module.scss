@@ -23,3 +23,37 @@
     padding-inline: 2.5rem;
   }
 }
+
+.notice {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.footnote {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  text-align: center;
+
+  a {
+    color: var(--brand-red);
+    font-weight: 600;
+    text-decoration: none;
+  }
+}
+
+.group {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.groupTitle {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}

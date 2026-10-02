@@ -1,6 +1,8 @@
 # Mi Cuartel Digital
 
-Portafolio personal estilo red social: un feed que combina blog, viajes y proyectos en una sola línea de tiempo, más vistas dedicadas por sección y un perfil.
+Portafolio personal estilo red social: el inicio reúne las últimas noticias de fuentes que sigo (vía RSS, agrupadas por tema y actualizadas cada 6 horas), y hay vistas dedicadas a blog, viajes, proyectos y un perfil.
+
+Las fuentes de noticias se configuran en `src/constants/newsSources.ts`. Si una fuente no tiene `feedUrl`, se busca el feed automáticamente en su página. El estado de cada fuente se puede ver en `/fuentes`.
 
 ## Stack
 
@@ -69,3 +71,4 @@ El comando imprime la URL pública final; esa es la que va en `heroImage`, `phot
 - `npm run prisma:seed -- --yes` — ⚠️ borra y recrea posts, viajes, proyectos y perfil con datos de ejemplo. Solo para bootstrap inicial de un entorno nuevo; **no correrlo** una vez haya contenido real (por ejemplo cargado desde el Table Editor de Supabase), porque lo destruye. El flag `--yes` es obligatorio a propósito, para evitar correrlo sin querer.
 - `npm run storage:setup` — crea el bucket público `media` en Supabase Storage si no existe
 - `npm run storage:upload -- <archivo> <ruta-en-bucket>` — sube un archivo a Storage y devuelve su URL pública
+- `npm run news:check` — revisa qué fuentes de noticias (`src/constants/newsSources.ts`) responden con un feed RSS/Atom

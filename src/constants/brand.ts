@@ -3,7 +3,7 @@
 export const BRAND = {
   name: "Dvid",
   fullName: "Dvid · Mi Cuartel Digital",
-  description: "Feed combinado de blog, viajes y proyectos",
+  description: "Noticias que sigo, blog, viajes y proyectos",
   backgroundColor: "#020202", // --brand-black
   themeColor: "#020202", // --brand-black
 } as const;

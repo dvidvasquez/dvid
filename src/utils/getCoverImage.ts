@@ -1,9 +1,10 @@
-import type { FeedType } from "@/services/feed.service";
+import type { FeedType } from "@/types/feed";
 
 const DEFAULT_COVERS: Record<FeedType, string> = {
   blog: "/defaults/blog.svg",
   travel: "/defaults/travel.svg",
   project: "/defaults/project.svg",
+  news: "/defaults/news.svg",
 };
 
 export function getDefaultCover(type: FeedType): string {
