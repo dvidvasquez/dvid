@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { getCoverImage } from "@/utils/getCoverImage";
 import { getExcerpt } from "@/utils/getExcerpt";
-import type { GlobalFeedItem } from "./feed.service";
+import type { GlobalFeedItem } from "@/types/feed";
 
 export async function getProjectFeed(): Promise<GlobalFeedItem[]> {
   const projects = await db.project.findMany({

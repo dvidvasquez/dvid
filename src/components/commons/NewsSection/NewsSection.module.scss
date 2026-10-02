@@ -1,0 +1,36 @@
+.section {
+  display: grid;
+  gap: 1rem;
+  padding-top: 1.5rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+
+  &::after {
+    content: ".";
+    color: var(--brand-red);
+  }
+}
+
+.count {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--surface-base);
+  box-shadow: var(--shadow-inset);
+  color: var(--text-muted);
+  padding: 0.125rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}

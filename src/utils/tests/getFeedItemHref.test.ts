@@ -21,3 +21,8 @@ test("usa el id para proyectos", () => {
   const href = getFeedItemHref({ type: "project", id: "3" });
   assert.equal(href, "/projects/3");
 });
+
+test("usa la url externa para noticias", () => {
+  const href = getFeedItemHref({ type: "news", id: "4", url: "https://enter.co/nota" });
+  assert.equal(href, "https://enter.co/nota");
+});
