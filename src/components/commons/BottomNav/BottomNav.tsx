@@ -20,17 +20,30 @@ export function BottomNav() {
           const active = isItemActive(pathname, item.href);
           const Icon = active ? item.activeIcon : item.icon;
 
+          const className = `${styles.link} ${active ? styles.active : ""}`;
+          const content = (
+            <>
+              <Icon className={styles.icon} aria-hidden="true" />
+              <span className={styles.label}>{item.label}</span>
+            </>
+          );
+
           return (
             <li key={item.href}>
-              <Link
-                href={item.href}
-                className={`${styles.link} ${active ? styles.active : ""}`}
-                aria-current={active ? "page" : undefined}
-                title={item.label}
-              >
-                <Icon className={styles.icon} aria-hidden="true" />
-                <span className={styles.label}>{item.label}</span>
-              </Link>
+              {item.staticPage ? (
+                <a href={item.href} className={className} title={item.label}>
+                  {content}
+                </a>
+              ) : (
+                <Link
+                  href={item.href}
+                  className={className}
+                  aria-current={active ? "page" : undefined}
+                  title={item.label}
+                >
+                  {content}
+                </Link>
+              )}
             </li>
           );
         })}
