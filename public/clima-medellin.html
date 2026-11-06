@@ -168,8 +168,16 @@ html, body { height: 100%; overflow: hidden; }
 }
 .cam-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
 .cam-head h2 { margin: 0; font-size: 13.5px; line-height: 1.3; }
-.cam-shot { display: block; border-radius: 10px; overflow: hidden; background: var(--grid); aspect-ratio: 16 / 9; }
+.cam-shot {
+  position: relative; display: block; width: 100%; padding: 0; border: 0; cursor: zoom-in;
+  border-radius: 10px; overflow: hidden; background: var(--grid); aspect-ratio: 16 / 9;
+}
 .cam-shot img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.cam-zoom {
+  position: absolute; right: 6px; bottom: 6px; width: 26px; height: 26px; border-radius: 50%;
+  display: grid; place-items: center; background: rgba(0, 0, 0, 0.55); color: #fff;
+}
+.cam-zoom svg { width: 14px; height: 14px; }
 .cam-meta, .cam-model { margin: 7px 0 0; font-size: 12px; line-height: 1.35; color: var(--ink2); }
 .cam-model { color: var(--ink); font-weight: 500; }
 .cam-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
@@ -181,6 +189,25 @@ html, body { height: 100%; overflow: hidden; }
   background: var(--surface); color: var(--ink); border: 1px solid var(--hair); border-left: 4px solid var(--temp);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
 }
+.lb {
+  position: fixed; inset: 0; z-index: 1400; display: flex; flex-direction: column;
+  background: #0c0e10; color: #fff;
+}
+.lb-head { display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: #000; border-bottom: 1px solid rgba(255, 255, 255, 0.14); flex: none; }
+.lb-head .tool-sm { background: transparent; color: #fff; border-color: rgba(255, 255, 255, 0.35); }
+.lb-title { min-width: 0; }
+.lb-title h2 { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-sub { margin: 1px 0 0; font-size: 12px; color: #b9c4cd; }
+/* La foto nunca se agranda por encima de su tamaño original (lo exigen los términos de Windy) */
+.lb-stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.lb-stage img { display: block; width: auto; height: auto; max-width: 100%; max-height: 100%; }
+.lb-foot {
+  flex: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px;
+  padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); background: #000; border-top: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 12.5px;
+}
+.lb-foot p { margin: 0; }
+.lb-foot .btn { color: #fff; border-color: rgba(255, 255, 255, 0.35); text-decoration: none; }
 .cmk { background: none; border: 0; }
 .cmk span {
   position: absolute; transform: translate(-50%, -50%);
@@ -422,9 +449,10 @@ footer .btn { display: inline-block; text-decoration: none; margin-top: 14px; }
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
         </button>
       </div>
-      <a class="cam-shot" id="cam-shot" href="#" target="_blank" rel="noopener noreferrer" aria-label="Abrir la cámara en Windy">
+      <button class="cam-shot" id="cam-shot" type="button" aria-label="Ver la foto en pantalla completa">
         <img id="cam-img" alt="Imagen reciente de la cámara" width="400" height="224" referrerpolicy="no-referrer">
-      </a>
+        <span class="cam-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></span>
+      </button>
       <p class="cam-meta" id="cam-meta"></p>
       <p class="cam-model" id="cam-model" hidden></p>
       <div class="cam-actions">
@@ -518,6 +546,25 @@ footer .btn { display: inline-block; text-decoration: none; margin-top: 14px; }
 </footer>
     </div>
   </aside>
+</div>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Foto de la cámara" hidden>
+  <div class="lb-head">
+    <button class="tool-sm" id="lb-close" type="button" aria-label="Cerrar foto" title="Cerrar foto">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="lb-title">
+      <h2 id="lb-title">Cámara</h2>
+      <p class="lb-sub" id="lb-sub"></p>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" alt="" referrerpolicy="no-referrer">
+  </div>
+  <div class="lb-foot">
+    <p id="lb-model" hidden></p>
+    <a class="btn" id="lb-page" href="#" target="_blank" rel="noopener noreferrer">Ver en Windy ↗</a>
+  </div>
 </div>
 
 <noscript><p style="padding:20px">Esta página necesita JavaScript para mostrar el clima en vivo.</p></noscript>
@@ -1045,21 +1092,46 @@ footer .btn { display: inline-block; text-decoration: none; margin-top: 14px; }
     var el = $('#cam-model'), c = camById(cams.sel);
     if (!c) { el.hidden = true; return; }
     var p = nearestPlace(c.lat, c.lon), o = p && markers[p.id];
-    if (!o || o.temp == null || o.code == null) { el.hidden = true; return; }
+    if (!o || o.temp == null || o.code == null) { el.hidden = true; if (lbOpen()) syncLb(c); return; }
     el.textContent = 'Pronóstico en ' + p.name + ': ' + o.temp + '°, ' + wx(o.code)[0].toLowerCase();
     el.hidden = false;
+    if (lbOpen()) syncLb(c);
   }
   function fillCam(c) {
     var img = $('#cam-img'), src = safeUrl(c.preview) || safeUrl(c.thumbnail);
     $('#cam-title').textContent = c.title;
     img.alt = 'Foto reciente de la cámara ' + c.title;
     if (src) img.src = src; else img.removeAttribute('src');
-    setLink($('#cam-shot'), c.pageUrl);
     setLink($('#cam-page'), c.pageUrl);
     setLink($('#cam-live'), c.liveUrl);
     setLink($('#cam-day'), c.dayUrl);
     $('#cam-meta').textContent = agoText(c.updatedAt);
     updateCamModel();
+  }
+  /* Visor a pantalla completa de la foto (nunca se agranda más allá de su tamaño original) */
+  function lbOpen() { return !$('#lb').hidden; }
+  function syncLb(c) {
+    var img = $('#lb-img'), src = $('#cam-img').getAttribute('src'), m = $('#cam-model'), lm = $('#lb-model');
+    $('#lb-title').textContent = c.title;
+    $('#lb-sub').textContent = $('#cam-meta').textContent;
+    img.alt = 'Foto reciente de la cámara ' + c.title;
+    if (src) { if (img.getAttribute('src') !== src) img.src = src; } else { img.removeAttribute('src'); }
+    lm.textContent = m.hidden ? '' : m.textContent;
+    lm.hidden = m.hidden;
+    setLink($('#lb-page'), c.pageUrl);
+  }
+  function openLb() {
+    var c = camById(cams.sel);
+    if (!c || !$('#cam-img').getAttribute('src')) return;
+    syncLb(c);
+    $('#lb').hidden = false;
+    $('#lb-close').focus();
+  }
+  function closeLb(restoreFocus) {
+    if (!lbOpen()) return;
+    $('#lb').hidden = true;
+    $('#lb-img').removeAttribute('src');
+    if (restoreFocus && !$('#cam').hidden) $('#cam-shot').focus();
   }
   function openCam(id) {
     var c = camById(id); if (!c) return;
@@ -1081,6 +1153,7 @@ footer .btn { display: inline-block; text-decoration: none; margin-top: 14px; }
     var prev = cams.sel;
     cams.sel = null;
     if (prev != null && cams.markers[prev]) cams.markers[prev].setIcon(camIcon(false));
+    closeLb(false);
     $('#cam').hidden = true;
   }
   function renderCams() {
@@ -1318,6 +1391,21 @@ footer .btn { display: inline-block; text-decoration: none; margin-top: 14px; }
     collapseHero = function () { if (!card.classList.contains('collapsed')) setCard(true, false); };
     $('#cams-toggle').addEventListener('click', function () { setCams(!cams.on); });
     $('#cam-close').addEventListener('click', function () { closeCam(); $('#cams-toggle').focus(); });
+    $('#cam-shot').addEventListener('click', openLb);
+    $('#lb-close').addEventListener('click', function () { closeLb(true); });
+    /* Tocar el fondo negro (fuera de la foto) también cierra */
+    $('#lb-stage').addEventListener('click', function (e) { if (e.target === e.currentTarget) closeLb(true); });
+    /* En fase de captura: con la foto abierta, Escape solo la cierra a ella, y Tab no sale del visor */
+    document.addEventListener('keydown', function (e) {
+      if (!lbOpen()) return;
+      if (e.key === 'Escape') { e.stopImmediatePropagation(); closeLb(true); return; }
+      if (e.key === 'Tab') {
+        var f = [$('#lb-close'), $('#lb-page')].filter(function (n) { return !n.hidden; });
+        var first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    }, true);
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && sheet.hidden && !$('#cam').hidden) { closeCam(); $('#cams-toggle').focus(); }
     });
