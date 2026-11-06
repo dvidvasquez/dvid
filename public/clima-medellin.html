@@ -158,6 +158,10 @@ h3 { margin: 0; font-size: 16px; font-weight: 600; }
 /* Mapa */
 .map-panel { padding: 0; overflow: hidden; }
 #map { height: 400px; background: var(--grid); }
+.leaflet-basemap-pane { filter: grayscale(0.55) contrast(0.92) brightness(1.04); }
+@media (prefers-color-scheme: dark) {
+  .leaflet-basemap-pane { filter: invert(1) hue-rotate(180deg) grayscale(0.5) brightness(0.9) contrast(0.95); }
+}
 .map-fallback { padding: 28px 20px; color: var(--ink2); }
 .map-controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 12px 16px 14px; }
 .play {
@@ -370,7 +374,7 @@ footer .btn { display: inline-block; text-decoration: none; margin-top: 14px; }
 
 <footer>
   <div class="wrap">
-    <p>Datos del modelo meteorológico de <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> para cada zona, no de estaciones en tierra. Radar y nubes de <a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>. Mapa de © OpenStreetMap y © CARTO.</p>
+    <p>Datos del modelo meteorológico de <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> para cada zona, no de estaciones en tierra. Radar y nubes de <a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>. Mapa base de © OpenStreetMap.</p>
     <p>Esta página no es oficial. Para alertas, estaciones y el radar propio del Valle de Aburrá, consulta SIATA.</p>
     <a class="btn" href="https://geoportal.siata.gov.co/" target="_blank" rel="noopener">Abrir geoportal de SIATA</a>
   </div>
@@ -812,10 +816,14 @@ footer .btn { display: inline-block; text-decoration: none; margin-top: 14px; }
     var el = $('#map');
     if (!window.L) { el.innerHTML = '<p class="map-fallback">No se pudo cargar el mapa. Revisa tu conexión y recarga la página.</p>'; return; }
     map = L.map(el, { scrollWheelZoom: false, zoomSnap: 0.5 });
-    var tiles = function (dark) { return 'https://{s}.basemaps.cartocdn.com/' + (dark ? 'dark_all' : 'light_all') + '/{z}/{x}/{y}{r}.png'; };
-    var mq = window.matchMedia('(prefers-color-scheme: dark)');
-    base = L.tileLayer(tiles(mq.matches), { attribution: '© OpenStreetMap © CARTO', subdomains: 'abcd', maxZoom: 18, zIndex: 1 }).addTo(map);
-    if (mq.addEventListener) mq.addEventListener('change', function (e) { base.setUrl(tiles(e.matches)); });
+    /* Mapa base de OpenStreetMap (sin API key). Va en un panel propio para que el
+       filtro de color del tema oscuro no altere los colores del radar. */
+    map.createPane('basemap');
+    map.getPane('basemap').style.zIndex = 150;
+    base = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>',
+      maxZoom: 19, pane: 'basemap'
+    }).addTo(map);
     var b = L.latLngBounds(PLACES.map(function (p) { return [p.lat, p.lon]; }));
     map.fitBounds(b, { padding: [28, 28] });
     PLACES.forEach(function (p) {
