@@ -157,6 +157,38 @@ html, body { height: 100%; overflow: hidden; }
 .tool svg { width: 18px; height: 18px; }
 .tool-sm svg { width: 16px; height: 16px; }
 .refresh[aria-busy="true"] svg { animation: spin 0.9s linear infinite; }
+.tool[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+
+/* Cámaras públicas (Windy): botón, marcadores y tarjeta */
+.cam {
+  position: absolute; left: 10px; bottom: 128px; width: min(292px, calc(100% - 20px));
+  padding: 10px; border-radius: 14px;
+  background: var(--surface); color: var(--ink); border: 1px solid var(--hair);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+}
+.cam-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.cam-head h2 { margin: 0; font-size: 13.5px; line-height: 1.3; }
+.cam-shot { display: block; border-radius: 10px; overflow: hidden; background: var(--grid); aspect-ratio: 16 / 9; }
+.cam-shot img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.cam-meta, .cam-model { margin: 7px 0 0; font-size: 12px; line-height: 1.35; color: var(--ink2); }
+.cam-model { color: var(--ink); font-weight: 500; }
+.cam-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+.cam-actions .btn { text-decoration: none; padding: 6px 10px; font-size: 12px; }
+.cam-credit { margin: 8px 0 0; font-size: 11px; color: var(--muted); }
+.cam-toast {
+  position: absolute; left: 10px; bottom: 128px; max-width: min(340px, calc(100% - 20px));
+  padding: 8px 12px; border-radius: 12px; font-size: 12.5px;
+  background: var(--surface); color: var(--ink); border: 1px solid var(--hair); border-left: 4px solid var(--temp);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+}
+.cmk { background: none; border: 0; }
+.cmk span {
+  position: absolute; transform: translate(-50%, -50%);
+  width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
+  background: var(--surface); color: var(--ink); border: 2px solid var(--ink); box-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+}
+.cmk span svg { width: 15px; height: 15px; }
+.cmk span.sel { background: var(--ink); color: var(--surface); border-color: var(--surface); }
 
 /* Barra del radar */
 .hud-bar {
@@ -367,6 +399,9 @@ footer .btn { display: inline-block; text-decoration: none; margin-top: 14px; }
       <button class="tool refresh" id="refresh" type="button" aria-label="Actualizar ahora" title="Actualizar ahora">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.6L4 8.5"/><path d="M4 4v4.5h4.5"/><path d="M4 13a8 8 0 0 0 14.3 4.6L20 15.5"/><path d="M20 20v-4.5h-4.5"/></svg>
       </button>
+      <button class="tool" id="cams-toggle" type="button" aria-pressed="false" aria-label="Mostrar cámaras públicas" title="Cámaras públicas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7H8l1.2-2h5.6L16 7h2.5A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.4"/></svg>
+      </button>
       <button class="tool" id="open-sheet" type="button" aria-expanded="false" aria-controls="sheet" aria-label="Ver detalles" title="Ver detalles">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20v-9M12 20V4M19 20v-6"/></svg>
       </button>
@@ -379,6 +414,27 @@ footer .btn { display: inline-block; text-decoration: none; margin-top: 14px; }
       <span>No se pudo actualizar. Se muestra el último dato y se reintenta solo.</span>
       <button class="btn" id="retry" type="button">Reintentar</button>
   </div>
+
+    <section class="cam" id="cam" aria-label="Cámara seleccionada" hidden>
+      <div class="cam-head">
+        <h2 id="cam-title">Cámara</h2>
+        <button class="tool-sm" id="cam-close" type="button" aria-label="Cerrar cámara" title="Cerrar cámara">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <a class="cam-shot" id="cam-shot" href="#" target="_blank" rel="noopener noreferrer" aria-label="Abrir la cámara en Windy">
+        <img id="cam-img" alt="Imagen reciente de la cámara" width="400" height="224" referrerpolicy="no-referrer">
+      </a>
+      <p class="cam-meta" id="cam-meta"></p>
+      <p class="cam-model" id="cam-model" hidden></p>
+      <div class="cam-actions">
+        <a class="btn" id="cam-live" href="#" target="_blank" rel="noopener noreferrer" hidden>En vivo ↗</a>
+        <a class="btn" id="cam-day" href="#" target="_blank" rel="noopener noreferrer" hidden>Timelapse ↗</a>
+        <a class="btn" id="cam-page" href="#" target="_blank" rel="noopener noreferrer">Ver en Windy ↗</a>
+      </div>
+      <p class="cam-credit">Cámaras y fotos: <a href="https://www.windy.com/" target="_blank" rel="noopener noreferrer">Windy.com</a>. Son fotos que se renuevan cada pocos minutos.</p>
+    </section>
+    <p class="cam-toast" id="cam-toast" role="status" hidden></p>
 
     <div class="hud-bar">
       <button class="play" id="play" type="button" aria-label="Reproducir animación de las últimas 2 horas">
@@ -455,7 +511,7 @@ footer .btn { display: inline-block; text-decoration: none; margin-top: 14px; }
 <footer>
   <div class="wrap">
     <p>Las burbujas del mapa muestran la temperatura de cada zona; las de borde azul tienen lluvia ahora. Toca una para ver su detalle. Radar y nubes vienen de RainViewer, que tiene cobertura parcial en Colombia. Para el radar oficial y las estaciones, abre el geoportal de SIATA (enlace al final).</p>
-    <p>Datos del modelo meteorológico de <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> para cada zona, no de estaciones en tierra. Radar y nubes de <a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>. Mapa base de © OpenStreetMap.</p>
+    <p>Datos del modelo meteorológico de <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> para cada zona, no de estaciones en tierra. Radar y nubes de <a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>. Mapa base de © OpenStreetMap. El botón de la cámara muestra webcams públicas de <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy.com</a>: son fotos que se renuevan cada pocos minutos, no video continuo.</p>
     <p>Esta página no es oficial. Para alertas, estaciones y el radar propio del Valle de Aburrá, consulta SIATA.</p>
     <a class="btn" href="https://geoportal.siata.gov.co/" target="_blank" rel="noopener">Abrir geoportal de SIATA</a>
   </div>
@@ -939,8 +995,140 @@ footer .btn { display: inline-block; text-decoration: none; margin-top: 14px; }
       var p = PLACES[i]; if (!p || !r || !r.current) return;
       markers[p.id].temp = round(r.current.temperature_2m);
       markers[p.id].wet = (r.current.precipitation || 0) >= 0.1 || isWet(r.current.weather_code);
+      markers[p.id].code = r.current.weather_code;
     });
     refreshMarkers();
+    updateCamModel();
+  }
+
+  /* ---------- Cámaras públicas (Windy, a través de /api/webcams) ---------- */
+  var cams = { on: false, layer: null, list: [], loadedAt: 0, sel: null, loading: null, markers: {}, imgRetried: false, attr: false, toastT: null };
+  var CAM_TTL = 4 * 60000; /* las URLs de las fotos caducan a los 10 min en el plan gratis de Windy */
+  var CAM_ATTR = 'Cámaras © <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy.com</a>';
+  var CAM_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7H8l1.2-2h5.6L16 7h2.5A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.4"/></svg>';
+  var collapseHero = function () {};
+
+  function safeUrl(u) { return typeof u === 'string' && /^https:\/\//i.test(u) ? u : null; }
+  function setLink(a, url) {
+    var ok = safeUrl(url);
+    if (ok) { a.href = ok; a.hidden = false; } else { a.removeAttribute('href'); a.hidden = true; }
+  }
+  function camIcon(sel) {
+    return L.divIcon({ className: 'cmk', iconSize: [0, 0], html: '<span class="' + (sel ? 'sel' : '') + '">' + CAM_SVG + '</span>' });
+  }
+  function camToast(msg) {
+    var t = $('#cam-toast');
+    t.textContent = msg; t.hidden = false;
+    clearTimeout(cams.toastT);
+    cams.toastT = setTimeout(function () { t.hidden = true; }, 6000);
+  }
+  function camById(id) { return cams.list.filter(function (c) { return c.id === id; })[0]; }
+  function agoText(iso) {
+    var t = iso ? Date.parse(iso) : NaN;
+    if (isNaN(t)) return 'Hora de la foto no disponible';
+    var min = Math.max(0, round((Date.now() - t) / 60000));
+    if (min < 2) return 'Foto de hace un momento';
+    if (min < 60) return 'Foto de hace ' + min + NBSP + 'min';
+    var h = round(min / 60);
+    return 'Foto de hace ' + h + NBSP + (h === 1 ? 'hora' : 'horas');
+  }
+  function nearestPlace(lat, lon) {
+    var best = null, bd = Infinity;
+    PLACES.forEach(function (p) {
+      var dx = p.lat - lat, dy = p.lon - lon, d = dx * dx + dy * dy;
+      if (d < bd) { bd = d; best = p; }
+    });
+    return best;
+  }
+  /* Línea para comparar la foto con lo que dice el pronóstico en la zona más cercana */
+  function updateCamModel() {
+    var el = $('#cam-model'), c = camById(cams.sel);
+    if (!c) { el.hidden = true; return; }
+    var p = nearestPlace(c.lat, c.lon), o = p && markers[p.id];
+    if (!o || o.temp == null || o.code == null) { el.hidden = true; return; }
+    el.textContent = 'Pronóstico en ' + p.name + ': ' + o.temp + '°, ' + wx(o.code)[0].toLowerCase();
+    el.hidden = false;
+  }
+  function fillCam(c) {
+    var img = $('#cam-img'), src = safeUrl(c.preview) || safeUrl(c.thumbnail);
+    $('#cam-title').textContent = c.title;
+    img.alt = 'Foto reciente de la cámara ' + c.title;
+    if (src) img.src = src; else img.removeAttribute('src');
+    setLink($('#cam-shot'), c.pageUrl);
+    setLink($('#cam-page'), c.pageUrl);
+    setLink($('#cam-live'), c.liveUrl);
+    setLink($('#cam-day'), c.dayUrl);
+    $('#cam-meta').textContent = agoText(c.updatedAt);
+    updateCamModel();
+  }
+  function openCam(id) {
+    var c = camById(id); if (!c) return;
+    var prev = cams.sel;
+    cams.sel = id; cams.imgRetried = false;
+    if (prev != null && cams.markers[prev]) cams.markers[prev].setIcon(camIcon(false));
+    if (cams.markers[id]) cams.markers[id].setIcon(camIcon(true));
+    fillCam(c);
+    $('#cam-toast').hidden = true;
+    $('#cam').hidden = false;
+    if (window.innerWidth < 700) collapseHero();
+    /* Deja la cámara elegida a la vista, por encima de la tarjeta y de la barra del radar */
+    if (map && typeof map.panInside === 'function') {
+      map.panInside([c.lat, c.lon], { paddingTopLeft: [40, 40], paddingBottomRight: [40, $('#cam').offsetHeight + 150] });
+    }
+    $('#cam-close').focus();
+  }
+  function closeCam() {
+    var prev = cams.sel;
+    cams.sel = null;
+    if (prev != null && cams.markers[prev]) cams.markers[prev].setIcon(camIcon(false));
+    $('#cam').hidden = true;
+  }
+  function renderCams() {
+    if (!map) return;
+    if (!cams.layer) cams.layer = L.layerGroup();
+    cams.layer.clearLayers();
+    cams.markers = {};
+    cams.list.forEach(function (c) {
+      var m = L.marker([c.lat, c.lon], { icon: camIcon(c.id === cams.sel), title: c.title, keyboard: true, zIndexOffset: 300 });
+      m.on('click', function () { openCam(c.id); });
+      cams.layer.addLayer(m);
+      cams.markers[c.id] = m;
+    });
+  }
+  function loadCams(force) {
+    if (cams.loading) return cams.loading;
+    if (!force && cams.list.length && Date.now() - cams.loadedAt < CAM_TTL) return Promise.resolve(true);
+    cams.loading = getJSON('/api/webcams').then(function (j) {
+      cams.list = j && Array.isArray(j.webcams) ? j.webcams : [];
+      cams.loadedAt = Date.now();
+      if (cams.sel != null) { var c = camById(cams.sel); if (c) fillCam(c); else closeCam(); }
+      renderCams();
+      return true;
+    }).catch(function () { return false; }).finally(function () { cams.loading = null; });
+    return cams.loading;
+  }
+  function setCams(on) {
+    var btn = $('#cams-toggle'), label = on ? 'Ocultar cámaras públicas' : 'Mostrar cámaras públicas';
+    cams.on = on;
+    btn.setAttribute('aria-pressed', String(on));
+    btn.setAttribute('aria-label', label); btn.title = label;
+    if (!map) return;
+    if (!on) {
+      if (cams.layer) map.removeLayer(cams.layer);
+      closeCam();
+      if (cams.attr && map.attributionControl.removeAttribution) map.attributionControl.removeAttribution(CAM_ATTR);
+      cams.attr = false;
+      return;
+    }
+    btn.setAttribute('aria-busy', 'true');
+    loadCams(false).then(function (ok) {
+      btn.removeAttribute('aria-busy');
+      if (!cams.on) return; /* se apagó mientras cargaba */
+      if (!ok && !cams.list.length) { setCams(false); camToast('Las cámaras no están disponibles ahora. Intenta de nuevo en un rato.'); return; }
+      if (!cams.list.length) camToast('No encontré cámaras públicas cerca del Valle de Aburrá.');
+      if (cams.layer) cams.layer.addTo(map);
+      if (!cams.attr) { map.attributionControl.addAttribution(CAM_ATTR); cams.attr = true; }
+    });
   }
 
   function frameTime(f) {
@@ -1057,6 +1245,7 @@ footer .btn { display: inline-block; text-decoration: none; margin-top: 14px; }
       setLive('');
       updateStamp();
       if (map && Date.now() - radar.loadedAt > 9 * 60000) loadRadar();
+      if (cams.on && Date.now() - cams.loadedAt > CAM_TTL) loadCams(true);
       window.__ready = true;
     }).catch(function () {
       if (my !== state.token) return;
@@ -1124,6 +1313,22 @@ footer .btn { display: inline-block; text-decoration: none; margin-top: 14px; }
     $('#close-sheet').addEventListener('click', function () { setSheet(false); });
     scrim.addEventListener('click', function () { setSheet(false); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !sheet.hidden) setSheet(false); });
+
+    /* Cámaras públicas */
+    collapseHero = function () { if (!card.classList.contains('collapsed')) setCard(true, false); };
+    $('#cams-toggle').addEventListener('click', function () { setCams(!cams.on); });
+    $('#cam-close').addEventListener('click', function () { closeCam(); $('#cams-toggle').focus(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && sheet.hidden && !$('#cam').hidden) { closeCam(); $('#cams-toggle').focus(); }
+    });
+    /* Si la foto no carga, normalmente caducó su enlace: se piden enlaces nuevos una sola vez */
+    $('#cam-img').addEventListener('error', function () {
+      if (cams.sel == null) return;
+      function fail() { if (cams.sel != null) $('#cam-meta').textContent = 'No se pudo cargar la foto. Ábrela en Windy.'; }
+      if (cams.imgRetried) { fail(); return; }
+      cams.imgRetried = true;
+      loadCams(true).then(function (ok) { if (!ok) fail(); });
+    });
     $('#refresh').addEventListener('click', function () { refresh(true); if (map) loadRadar(); });
     $('#retry').addEventListener('click', function () { refresh(true); });
     $('#r-prob').addEventListener('click', function () { setRainMode('prob'); });
