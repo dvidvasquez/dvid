@@ -10,6 +10,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      // La herramienta de clima ahora es la ruta /clima; se conservan los enlaces y accesos directos viejos.
+      { source: "/clima-medellin.html", destination: "/clima", permanent: false },
+    ];
+  },
 };
 
 export default nextConfig;
