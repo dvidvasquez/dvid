@@ -469,10 +469,6 @@ footer .btn { display: inline-block; text-decoration: none; margin-top: 14px; }
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path id="play-ico" d="M8 5.5v13l11-6.5z"/></svg>
       </button>
       <input type="range" id="frame" min="0" max="0" value="0" step="1" aria-label="Momento de la imagen del mapa" disabled>
-      <div class="seg" role="group" aria-label="Capa del mapa">
-        <button type="button" id="k-radar" aria-pressed="true">Radar</button>
-        <button type="button" id="k-sat" aria-pressed="false">Nubes</button>
-      </div>
       <p class="radar-time" id="radar-time" aria-live="polite">Cargando imagen…</p>
     </div>
   </div>
@@ -538,8 +534,8 @@ footer .btn { display: inline-block; text-decoration: none; margin-top: 14px; }
 
 <footer>
   <div class="wrap">
-    <p>Las burbujas del mapa muestran la temperatura de cada zona; las de borde azul tienen lluvia ahora. Toca una para ver su detalle. Radar y nubes vienen de RainViewer, que tiene cobertura parcial en Colombia. Para el radar oficial y las estaciones, abre el geoportal de SIATA (enlace al final).</p>
-    <p>Datos del modelo meteorológico de <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> para cada zona, no de estaciones en tierra. Radar y nubes de <a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>. Mapa base de © OpenStreetMap. El botón de la cámara muestra webcams públicas de <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy.com</a>: son fotos que se renuevan cada pocos minutos, no video continuo.</p>
+    <p>Las burbujas del mapa muestran la temperatura de cada zona; las de borde azul tienen lluvia ahora. Toca una para ver su detalle. El radar viene de RainViewer, que tiene cobertura parcial en Colombia. Para el radar oficial y las estaciones, abre el geoportal de SIATA (enlace al final).</p>
+    <p>Datos del modelo meteorológico de <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> para cada zona, no de estaciones en tierra. Radar de <a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>. Mapa base de © OpenStreetMap. El botón de la cámara muestra webcams públicas de <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy.com</a>: son fotos que se renuevan cada pocos minutos, no video continuo.</p>
     <p>Esta página no es oficial. Para alertas, estaciones y el radar propio del Valle de Aburrá, consulta SIATA.</p>
     <a class="btn" href="https://geoportal.siata.gov.co/" target="_blank" rel="noopener">Abrir geoportal de SIATA</a>
   </div>
@@ -990,7 +986,7 @@ footer .btn { display: inline-block; text-decoration: none; margin-top: 14px; }
 
   /* ---------- Mapa ---------- */
   var map = null, markers = {}, base = null;
-  var radar = { kind: 'radar', host: '', data: null, layers: [], frames: [], idx: 0, playing: false, timer: null, loadedAt: 0 };
+  var radar = { host: '', data: null, layers: [], frames: [], idx: 0, playing: false, timer: null, loadedAt: 0 };
   var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function pill(p, temp, wet, sel) {
@@ -1216,12 +1212,8 @@ footer .btn { display: inline-block; text-decoration: none; margin-top: 14px; }
     if (!map || !radar.data) return;
     clearRadar();
     var j = radar.data, host = radar.host || 'https://tilecache.rainviewer.com', frames = [];
-    if (radar.kind === 'radar') {
-      ((j.radar && j.radar.past) || []).forEach(function (f) { frames.push({ time: f.time, path: f.path, fc: false }); });
-      ((j.radar && j.radar.nowcast) || []).forEach(function (f) { frames.push({ time: f.time, path: f.path, fc: true }); });
-    } else {
-      ((j.satellite && j.satellite.infrared) || []).forEach(function (f) { frames.push({ time: f.time, path: f.path, fc: false }); });
-    }
+    ((j.radar && j.radar.past) || []).forEach(function (f) { frames.push({ time: f.time, path: f.path, fc: false }); });
+    ((j.radar && j.radar.nowcast) || []).forEach(function (f) { frames.push({ time: f.time, path: f.path, fc: true }); });
     var slider = $('#frame');
     if (!frames.length) {
       slider.disabled = true; slider.max = 0;
@@ -1230,7 +1222,7 @@ footer .btn { display: inline-block; text-decoration: none; margin-top: 14px; }
     }
     radar.frames = frames;
     frames.forEach(function (f, i) {
-      var tpl = host + f.path + '/256/{z}/{x}/{y}/' + (radar.kind === 'radar' ? '2/1_1' : '0/0_0') + '.png';
+      var tpl = host + f.path + '/256/{z}/{x}/{y}/2/1_1.png';
       radar.layers.push(L.tileLayer(tpl, { opacity: 0, maxNativeZoom: 7, maxZoom: 18, zIndex: 5 + i, tileSize: 256 }).addTo(map));
     });
     var lastPast = 0;
@@ -1245,7 +1237,7 @@ footer .btn { display: inline-block; text-decoration: none; margin-top: 14px; }
     var f = radar.frames[i]; if (!f) return;
     var mins = Math.round((Date.now() - f.time * 1000) / 60000);
     var when = f.fc ? 'pronóstico' : (mins <= 1 ? 'ahora' : 'hace ' + mins + NBSP + 'min');
-    $('#radar-time').textContent = (radar.kind === 'radar' ? 'Radar de las ' : 'Nubes de las ') + frameTime(f) + ' (' + when + ')';
+    $('#radar-time').textContent = 'Radar de las ' + frameTime(f) + ' (' + when + ')';
   }
   function tick() {
     if (!radar.playing) return;
@@ -1423,14 +1415,6 @@ footer .btn { display: inline-block; text-decoration: none; margin-top: 14px; }
     $('#r-mm').addEventListener('click', function () { setRainMode('mm'); });
     $('#play').addEventListener('click', function () { radar.playing ? stopPlay() : startPlay(); });
     $('#frame').addEventListener('input', function (e) { stopPlay(); showFrame(Number(e.target.value)); });
-    function setKind(k) {
-      radar.kind = k;
-      $('#k-radar').setAttribute('aria-pressed', String(k === 'radar'));
-      $('#k-sat').setAttribute('aria-pressed', String(k === 'sat'));
-      buildRadar();
-    }
-    $('#k-radar').addEventListener('click', function () { setKind('radar'); });
-    $('#k-sat').addEventListener('click', function () { setKind('sat'); });
 
     var rt;
     function redraw() { cancelAnimationFrame(rt); rt = requestAnimationFrame(function () { drawTemp(); drawRain(); }); }
