@@ -1,0 +1,24 @@
+.line {
+  fill: none;
+  stroke: var(--data-temp);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.area {
+  fill: var(--data-temp);
+  opacity: 0.1;
+}
+
+.dot {
+  fill: var(--data-temp);
+  stroke: var(--surface-raised);
+  stroke-width: 2;
+}
+
+.label {
+  fill: var(--text-secondary);
+  font-size: 11.5px;
+  font-weight: 600;
+}

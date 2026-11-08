@@ -1,0 +1,27 @@
+.footer {
+  margin-top: 1.125rem;
+  padding: 0.875rem 0 1.625rem;
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  line-height: 1.45;
+
+  p {
+    margin: 0;
+  }
+
+  p + p {
+    margin-top: 0.5rem;
+  }
+
+}
+
+.link {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.action {
+  margin-top: 0.875rem;
+}

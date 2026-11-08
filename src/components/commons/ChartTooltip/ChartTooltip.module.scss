@@ -1,0 +1,51 @@
+.tooltip {
+  position: absolute;
+  top: 2px;
+  left: 0;
+  z-index: 3;
+  transform: translateX(-50%);
+  padding: 0.4375rem 0.625rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-overlay);
+  box-shadow: var(--shadow-soft);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.title {
+  margin-bottom: 3px;
+  color: var(--text-secondary);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  line-height: 1.5;
+}
+
+.value {
+  font-size: 0.8125rem;
+  font-weight: 650;
+}
+
+.label {
+  color: var(--text-secondary);
+}
+
+.key {
+  display: inline-block;
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.temp {
+  background: var(--data-temp);
+}
+
+.rain {
+  background: var(--data-rain);
+}

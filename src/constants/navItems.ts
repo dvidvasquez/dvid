@@ -19,13 +19,11 @@ export type NavItem = {
     href: string;
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
     activeIcon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-    /** Página estática de /public: se abre con un enlace normal, no con next/link. */
-    staticPage?: boolean;
 };
 
 export const NAV_ITEMS: NavItem[] = [
     { label: "Inicio", href: "/", icon: HomeOutlineIcon, activeIcon: HomeSolidIcon },
-    { label: "Clima", href: "/clima-medellin.html?app=1", icon: CloudOutlineIcon, activeIcon: CloudSolidIcon, staticPage: true },
+    { label: "Clima", href: "/clima", icon: CloudOutlineIcon, activeIcon: CloudSolidIcon },
     { label: "Viajes", href: "/travels", icon: MapOutlineIcon, activeIcon: MapSolidIcon },
     { label: "Proyectos", href: "/projects", icon: BriefcaseOutlineIcon, activeIcon: BriefcaseSolidIcon },
     { label: "Perfil", href: "/profile", icon: UserOutlineIcon, activeIcon: UserSolidIcon },

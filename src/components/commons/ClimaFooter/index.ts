@@ -1,0 +1,1 @@
+export { ClimaFooter } from "./ClimaFooter";

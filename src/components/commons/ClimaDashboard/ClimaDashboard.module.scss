@@ -1,0 +1,27 @@
+/* El mapa ocupa toda la pantalla por debajo de la barra de navegacion (z-index 40 en el layout). */
+.stage {
+  /* Espacio libre abajo para no quedar tapado por la barra de navegacion */
+  --clima-bottom: 6rem;
+
+  position: fixed;
+  inset: 0;
+  isolation: isolate;
+  background: var(--surface-muted);
+}
+
+.hud {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+}
+
+.empty {
+  margin: 1.125rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}

@@ -1,0 +1,91 @@
+.section {
+  padding-top: 1.125rem;
+}
+
+.heading {
+  margin: 0 0 0.625rem;
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.panel {
+  padding: 0.25rem 1rem;
+}
+
+.day {
+  display: grid;
+  grid-template-columns: 52px 26px 1fr;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding: 0.5625rem 0;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 0.8125rem;
+
+  &:first-child {
+    border-top: 0;
+  }
+}
+
+.name {
+  font-weight: 600;
+}
+
+.icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--text-secondary);
+}
+
+.rain {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
+.rainValue {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.range {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 34px 1fr 34px;
+  align-items: center;
+  gap: 0.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.low {
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+.high {
+  font-weight: 600;
+}
+
+.track {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface-muted);
+}
+
+.fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 3px;
+  background: var(--data-temp);
+}
+
+@media (min-width: 30rem) {
+  .day {
+    grid-template-columns: 50px 26px 1fr minmax(128px, 190px);
+  }
+
+  .range {
+    grid-column: auto;
+  }
+}

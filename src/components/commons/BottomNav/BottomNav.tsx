@@ -30,20 +30,14 @@ export function BottomNav() {
 
           return (
             <li key={item.href}>
-              {item.staticPage ? (
-                <a href={item.href} className={className} title={item.label}>
-                  {content}
-                </a>
-              ) : (
-                <Link
-                  href={item.href}
-                  className={className}
-                  aria-current={active ? "page" : undefined}
-                  title={item.label}
-                >
-                  {content}
-                </Link>
-              )}
+              <Link
+                href={item.href}
+                className={className}
+                aria-current={active ? "page" : undefined}
+                title={item.label}
+              >
+                {content}
+              </Link>
             </li>
           );
         })}

@@ -1,0 +1,1 @@
+export { WebcamCard } from "./WebcamCard";

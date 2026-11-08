@@ -1,0 +1,12 @@
+.bar {
+  fill: var(--data-rain);
+  transition: opacity 120ms ease;
+}
+
+.hasActive .bar {
+  opacity: 0.45;
+}
+
+.hasActive .on {
+  opacity: 1;
+}

@@ -1,0 +1,17 @@
+.action {
+  display: inline-block;
+  padding: 0.4375rem 0.75rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--surface-overlay);
+  }
+}

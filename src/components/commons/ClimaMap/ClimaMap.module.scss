@@ -1,0 +1,117 @@
+.wrapper {
+  position: absolute;
+  inset: 0;
+
+  /* Leaflet fija su propio fondo claro: aqui se pisa para que no parpadee antes de cargar los mosaicos */
+  .map {
+    background: var(--surface-muted);
+  }
+
+  /* Mapa base oscuro (el radar va en otro panel y conserva sus colores) */
+  & :global(.leaflet-basemap-pane) {
+    filter: invert(1) hue-rotate(180deg) grayscale(0.5) brightness(0.9) contrast(0.95);
+  }
+
+  /* Los botones de zoom quedan debajo de los botones flotantes */
+  & :global(.leaflet-top.leaflet-right) {
+    margin-top: 152px;
+  }
+}
+
+.map {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+}
+
+.fallback {
+  position: absolute;
+  inset: 0;
+  padding: 1.75rem 1.25rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+@media (hover: none) {
+  .wrapper :global(.leaflet-control-zoom) {
+    display: none;
+  }
+}
+
+@media (min-width: 56.25rem) {
+  .sheetOpen :global(.leaflet-top.leaflet-right) {
+    margin-right: 25.625rem;
+  }
+}
+
+/* Marcadores: los crea Leaflet como HTML, por eso reciben estas clases por nombre */
+.marker {
+  border: 0;
+  background: none;
+}
+
+.pill {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 6px;
+  border: 2px solid var(--surface-raised);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
+  box-shadow: 0 1px 6px rgb(0 0 0 / 0.3);
+  color: var(--text-primary);
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1.4;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.pillWet {
+  border-color: var(--data-rain);
+}
+
+.pillSelected {
+  padding: 2px 9px;
+  border-color: var(--text-primary);
+  background: var(--text-primary);
+  color: var(--surface-base);
+  font-size: 0.78rem;
+
+  &.pillWet {
+    border-color: var(--data-rain);
+  }
+}
+
+.pillLabel {
+  font-style: normal;
+  font-weight: 500;
+}
+
+.webcamPill {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 2px solid var(--text-primary);
+  border-radius: 50%;
+  background: var(--surface-raised);
+  box-shadow: 0 1px 6px rgb(0 0 0 / 0.35);
+  color: var(--text-primary);
+  cursor: pointer;
+
+  svg {
+    width: 0.9375rem;
+    height: 0.9375rem;
+  }
+}
+
+.webcamPillSelected {
+  border-color: var(--surface-raised);
+  background: var(--text-primary);
+  color: var(--surface-base);
+}

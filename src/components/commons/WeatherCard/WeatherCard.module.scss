@@ -1,0 +1,229 @@
+.card {
+  position: absolute;
+  top: 0.625rem;
+  left: 0.625rem;
+  width: min(292px, calc(100% - 66px));
+  padding: 0.625rem 0.75rem 0.75rem;
+  border-radius: var(--radius-md);
+  background: linear-gradient(172deg, var(--sky-a, #0a3a6b), var(--sky-b, #2a74b5));
+  color: #fff;
+  box-shadow: var(--shadow-card);
+  transition: opacity 160ms ease;
+
+  & :focus-visible {
+    outline-color: #fff;
+  }
+}
+
+.loading {
+  opacity: 0.7;
+}
+
+.toggle {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+}
+
+.top {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  max-width: 100%;
+  padding-right: 34px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.select {
+  max-width: 100%;
+  padding: 6px 28px 6px 10px;
+  border: 1px solid rgb(255 255 255 / 0.32);
+  border-radius: 9px;
+  appearance: none;
+  background: rgb(255 255 255 / 0.14)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M3 6l5 5 5-5' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    no-repeat right 9px center;
+  background-size: 14px;
+  color: #fff;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  option {
+    background: #fff;
+    color: #0f1b26;
+  }
+}
+
+.stamp {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  color: rgb(255 255 255 / 0.92);
+  font-size: 0.72rem;
+}
+
+.live {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: var(--data-live);
+  box-shadow: 0 0 0 0 rgb(124 227 161 / 0.6);
+  animation: pulse 2.4s ease-out infinite;
+}
+
+.stale {
+  background: var(--data-stale);
+  animation: none;
+}
+
+.error {
+  background: var(--data-error);
+  animation: none;
+}
+
+@keyframes pulse {
+  70% {
+    box-shadow: 0 0 0 8px rgb(124 227 161 / 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgb(124 227 161 / 0);
+  }
+}
+
+.now {
+  display: flex;
+  align-items: center;
+  gap: 2px 10px;
+  margin-top: 6px;
+}
+
+.temp {
+  flex: none;
+  margin: 0;
+  font-size: clamp(46px, 12vw, 56px);
+  font-weight: 300;
+  letter-spacing: -0.045em;
+  line-height: 0.9;
+}
+
+.deg {
+  display: inline-block;
+  margin-left: 0.03em;
+  font-size: 0.4em;
+  line-height: 1.1;
+  vertical-align: top;
+}
+
+.cond {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.icon {
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+}
+
+.condLabel {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  line-height: 1.15;
+}
+
+.condSub {
+  margin: 2px 0 0;
+  color: rgb(255 255 255 / 0.92);
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
+.outlook {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0.5rem 0 0;
+  padding: 7px 9px;
+  border: 1px solid rgb(255 255 255 / 0.18);
+  border-radius: 10px;
+  background: rgb(8 18 28 / 0.4);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.3;
+
+  svg {
+    flex: none;
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+/* Plegada: una pastilla con la temperatura y el icono */
+.collapsed {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  padding: 5px 6px 5px 12px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+
+  .top,
+  .outlook,
+  .condText {
+    display: none;
+  }
+
+  .now {
+    order: 1;
+    gap: 6px;
+    margin-top: 0;
+  }
+
+  .temp {
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .toggle {
+    position: static;
+    order: 2;
+    width: 1.75rem;
+    height: 1.75rem;
+
+    svg {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live {
+    animation: none;
+  }
+}

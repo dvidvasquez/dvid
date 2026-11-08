@@ -1,0 +1,19 @@
+.banner {
+  position: absolute;
+  right: 0.625rem;
+  bottom: calc(var(--clima-bottom, 6rem) + 98px);
+  left: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.625rem;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 8px 12px;
+  border: 1px solid var(--border-subtle);
+  border-left: 4px solid var(--data-temp);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-card);
+  font-size: 0.78rem;
+}

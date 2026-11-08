@@ -22,6 +22,13 @@
   --text-secondary: var(--brand-silver);
   --text-muted: color-mix(in srgb, var(--brand-silver) 55%, var(--brand-ash));
 
+  /* Datos del clima (gráficas, mapa y estados) */
+  --data-temp: #e8743a;
+  --data-rain: #4a93ec;
+  --data-live: #7ce3a1;
+  --data-stale: #f5c26b;
+  --data-error: #ff8a80;
+
   --font-display: var(--font-syne), var(--font-outfit), sans-serif;
 
   --radius-sm: 0.75rem;

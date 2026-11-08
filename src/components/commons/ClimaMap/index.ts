@@ -1,0 +1,1 @@
+export { ClimaMap } from "./ClimaMap";

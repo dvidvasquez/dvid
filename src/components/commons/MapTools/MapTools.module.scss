@@ -1,0 +1,14 @@
+.tools {
+  position: absolute;
+  top: 0.625rem;
+  right: 0.625rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+@media (min-width: 56.25rem) {
+  .shifted {
+    right: 26.25rem;
+  }
+}

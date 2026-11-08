@@ -1,0 +1,14 @@
+.grid {
+  stroke: var(--surface-muted);
+  stroke-width: 1;
+}
+
+.axis {
+  stroke: var(--brand-graphite);
+  stroke-width: 1;
+}
+
+.text {
+  fill: var(--text-muted);
+  font-size: 11px;
+}

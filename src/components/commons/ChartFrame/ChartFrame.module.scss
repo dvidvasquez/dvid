@@ -1,0 +1,20 @@
+.host {
+  position: relative;
+}
+
+.svg {
+  display: block;
+  overflow: visible;
+  touch-action: pan-y;
+
+  &:focus-visible {
+    outline-offset: 4px;
+    border-radius: 6px;
+  }
+}
+
+.crosshair {
+  stroke: var(--brand-graphite);
+  stroke-width: 1;
+  pointer-events: none;
+}
