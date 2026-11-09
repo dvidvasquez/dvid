@@ -57,6 +57,8 @@ const INFOLOCAL_AGENDA = "https://infolocal.comfenalcoantioquia.com/index.php/ag
  * por Infolocal y Descubre Medellín; las universidades por el Teatro Universidad de Medellín y el
  * calendario de EAFIT. Quedan fuera las que solo publican PDF, imagenes o redes sociales (casas de
  * cultura, UdeA, UNAL) y los eventos de medellin.gov.co (robots.txt no permite leerlos).
+ * Las tiqueteras no ofrecen API publica: La Tiquetera se esta cerrando (migra a Ticketmaster) y
+ * tuboleta.com se arma con JavaScript; de Tuboleta solo se prueban los listados por recinto.
  */
 export const EVENT_SOURCES: EventSource[] = [
   {
@@ -125,6 +127,16 @@ export const EVENT_SOURCES: EventSource[] = [
     pages: [
       { url: "https://teatro.udemedellin.edu.co/eventos/" },
       { url: "https://teatro.udemedellin.edu.co/mec-category/eventos-universidad/" },
+    ],
+  },
+  {
+    // Listados por recinto de Tuboleta (Teatro Metropolitano y Comfama): todo es de Medellín. A probar, como EAFIT.
+    nombre: "Tuboleta",
+    url: "https://teatrometropolitano.checkout.tuboleta.com/list/events",
+    kind: "jsonld",
+    pages: [
+      { url: "https://teatrometropolitano.checkout.tuboleta.com/list/events" },
+      { url: "https://comfama.checkout.tuboleta.com/list/events" },
     ],
   },
   {
