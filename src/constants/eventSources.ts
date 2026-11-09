@@ -42,31 +42,22 @@ export type EventSource =
 
 const SONGKICK_MEDELLIN = "https://www.songkick.com/metro-areas/28331-colombia-medellin";
 const EVENTBRITE_MEDELLIN = "https://www.eventbrite.com/d/colombia--medell%C3%ADn";
-const EVENTWORLD_MEDELLIN = "https://www.eventworld.com/medellin/concerts";
 
+/**
+ * Las fuentes se revisan en el panel «Fuentes» de /agenda. Se quitaron las que desde el servidor
+ * respondian 403 (bloquean trafico automatico: Medellín Guru, Bandsintown, JamBase, Eventworld,
+ * Medellín.co), 404/410 (el calendario de Medellín Travel cambio de URL) o no traian eventos (Fever).
+ * Songkick y Eventbrite son las que se confirmaron funcionando; el resto son sitios locales y
+ * agendas de teatros que se prueban por JSON-LD: si el panel dice que no traen datos, se quitan o
+ * se les escribe un lector propio.
+ */
 export const EVENT_SOURCES: EventSource[] = [
-  {
-    nombre: "Medellín Guru",
-    url: "https://medellinguru.com",
-    kind: "tribe",
-    restUrl: "https://medellinguru.com/wp-json/tribe/events/v1/events",
-    icsUrl: "https://medellinguru.com/events/?ical=1",
-  },
-  {
-    nombre: "Medellín Travel",
-    url: "https://www.medellin.travel/eventos/",
-    kind: "tribe",
-    restUrl: "https://www.medellin.travel/wp-json/tribe/events/v1/events",
-    icsUrl: "https://www.medellin.travel/eventos/?ical=1",
-  },
   {
     nombre: "Songkick",
     url: SONGKICK_MEDELLIN,
     kind: "jsonld",
-    pages: [
-      { url: SONGKICK_MEDELLIN, categoryHint: "musica" },
-      { url: `${SONGKICK_MEDELLIN}?page=2`, categoryHint: "musica" },
-    ],
+    // La pagina 2 responde 406: Medellin cabe en una sola pagina.
+    pages: [{ url: SONGKICK_MEDELLIN, categoryHint: "musica" }],
   },
   {
     nombre: "Eventbrite",
@@ -74,46 +65,80 @@ export const EVENT_SOURCES: EventSource[] = [
     kind: "jsonld",
     pages: [
       { url: `${EVENTBRITE_MEDELLIN}/events/` },
+      { url: `${EVENTBRITE_MEDELLIN}/events/?page=2` },
+      { url: `${EVENTBRITE_MEDELLIN}/events/?page=3` },
       { url: `${EVENTBRITE_MEDELLIN}/music--events/`, categoryHint: "musica" },
+      { url: `${EVENTBRITE_MEDELLIN}/music--events/?page=2`, categoryHint: "musica" },
       { url: `${EVENTBRITE_MEDELLIN}/performing-arts--events/`, categoryHint: "teatro" },
+      { url: `${EVENTBRITE_MEDELLIN}/community--events/`, categoryHint: "feria" },
       { url: `${EVENTBRITE_MEDELLIN}/food-and-drink--events/`, categoryHint: "feria" },
     ],
   },
   {
-    nombre: "Bandsintown",
-    url: "https://www.bandsintown.com/c/medellin-colombia",
+    nombre: "Infolocal Comfenalco",
+    url: "https://infolocal.comfenalcoantioquia.com/index.php/agenda",
+    kind: "jsonld",
+    pages: [{ url: "https://infolocal.comfenalcoantioquia.com/index.php/agenda" }],
+  },
+  {
+    nombre: "Medellín Travel",
+    url: "https://www.medellin.travel/caleventos/",
+    kind: "jsonld",
+    pages: [{ url: "https://www.medellin.travel/caleventos/" }],
+  },
+  {
+    nombre: "Descubre Medellín",
+    url: "https://descubremedellin.co/es/agenda/",
+    kind: "jsonld",
+    pages: [{ url: "https://descubremedellin.co/es/agenda/" }],
+  },
+  {
+    nombre: "Vamos Eventos",
+    url: "https://www.vamoseventos.com/medellin",
     kind: "jsonld",
     pages: [
-      { url: "https://www.bandsintown.com/c/medellin-colombia", categoryHint: "musica" },
-      { url: "https://www.bandsintown.com/c/medellin-colombia/all-dates/genre/electronic", categoryHint: "electronica" },
+      { url: "https://www.vamoseventos.com/medellin" },
+      { url: "https://www.vamoseventos.com/medellin/hoy" },
     ],
   },
   {
-    nombre: "JamBase",
-    url: "https://www.jambase.com/concerts/co/~/concerts-in-medellin",
-    kind: "jsonld",
-    pages: [{ url: "https://www.jambase.com/concerts/co/~/concerts-in-medellin", categoryHint: "musica" }],
-  },
-  {
-    nombre: "Eventworld",
-    url: EVENTWORLD_MEDELLIN,
+    nombre: "AllEvents",
+    url: "https://allevents.in/medellin",
     kind: "jsonld",
     pages: [
-      { url: `${EVENTWORLD_MEDELLIN}/metal`, categoryHint: "metal" },
-      { url: `${EVENTWORLD_MEDELLIN}/rock`, categoryHint: "rock" },
-      { url: `${EVENTWORLD_MEDELLIN}/indie`, categoryHint: "rock" },
+      { url: "https://allevents.in/medellin" },
+      { url: "https://allevents.in/medellin/music", categoryHint: "musica" },
     ],
   },
   {
-    nombre: "Fever",
-    url: "https://feverup.com/es/medellin",
+    nombre: "Cartel Rock",
+    url: "https://cartelrock.com/eventos",
     kind: "jsonld",
-    pages: [{ url: "https://feverup.com/es/medellin" }],
+    // municipio:23 es Medellin en el filtro del sitio.
+    pages: [{ url: "https://cartelrock.com/eventos?f%5B0%5D=municipio%3A23", categoryHint: "rock" }],
   },
   {
-    nombre: "Medellín.co",
-    url: "https://medellin.co/events-categories/concert",
+    nombre: "Medellín Vibra",
+    url: "https://www.medellinvibra.co/",
     kind: "jsonld",
-    pages: [{ url: "https://medellin.co/events-categories/concert", categoryHint: "musica" }],
+    pages: [{ url: "https://www.medellinvibra.co/" }],
+  },
+  {
+    nombre: "Teatro Metropolitano",
+    url: "https://www.teatrometropolitano.com/programacion/eventos",
+    kind: "jsonld",
+    pages: [{ url: "https://www.teatrometropolitano.com/programacion/eventos" }],
+  },
+  {
+    nombre: "Matacandelas",
+    url: "https://www.matacandelas.com/",
+    kind: "jsonld",
+    pages: [{ url: "https://www.matacandelas.com/" }],
+  },
+  {
+    nombre: "La Tiquetera (Comfama)",
+    url: "https://latiquetera.com/site/comfama",
+    kind: "jsonld",
+    pages: [{ url: "https://latiquetera.com/site/comfama" }],
   },
 ];

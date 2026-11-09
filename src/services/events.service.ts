@@ -10,6 +10,7 @@ import type { AgendaEvent, DayRange } from "@/types/event";
 import { addDaysToKey } from "@/utils/addDaysToKey";
 import { collectJsonLdEvents } from "@/utils/collectJsonLdEvents";
 import { dedupeEvents } from "@/utils/dedupeEvents";
+import { describeStructuredData } from "@/utils/describeStructuredData";
 import { extractJsonLd } from "@/utils/extractJsonLd";
 import { getEventDayKeys } from "@/utils/getEventDayKeys";
 import { icsToAgendaEvent } from "@/utils/icsToAgendaEvent";
@@ -121,20 +122,21 @@ async function loadIcs(source: IcsSource): Promise<Loaded> {
   return { events };
 }
 
-/** Lee una pagina HTML: sus eventos y cuantos bloques de eventos trajo. */
+/** Lee una pagina HTML: sus eventos, cuantos bloques de eventos trajo y que datos estructurados tiene. */
 async function loadJsonLdPage(
   source: Extract<EventSource, { kind: "jsonld" }>,
   page: JsonLdPage,
-): Promise<{ events: AgendaEvent[]; structured: number } | { error: string }> {
+): Promise<{ events: AgendaEvent[]; structured: number; detail: string } | { error: string }> {
   const result = await fetchText(page.url, "text/html,application/xhtml+xml;q=0.9,*/*;q=0.5");
   if (!result.ok) return { error: result.error };
 
-  const nodes = collectJsonLdEvents(extractJsonLd(result.text));
+  const blocks = extractJsonLd(result.text);
+  const nodes = collectJsonLdEvents(blocks);
   const pageSource = { nombre: source.nombre, url: source.url, categoryHint: page.categoryHint };
   const events = nodes
     .map((node) => jsonLdToAgendaEvent(node, pageSource, page.url))
     .filter((event): event is AgendaEvent => event !== null);
-  return { events, structured: nodes.length };
+  return { events, structured: nodes.length, detail: describeStructuredData(result.text, blocks) };
 }
 
 async function loadJsonLd(source: Extract<EventSource, { kind: "jsonld" }>): Promise<Loaded> {
@@ -148,7 +150,8 @@ async function loadJsonLd(source: Extract<EventSource, { kind: "jsonld" }>): Pro
   const notes: string[] = [];
   if (failures.length > 0) notes.push(`${failures.length} de ${pages.length} páginas fallaron (${failures.join(", ")})`);
   if (events.length === 0 && loaded.every((page) => page.structured === 0)) {
-    notes.push("La página respondió pero no trae datos de eventos (JSON-LD)");
+    const details = [...new Set(loaded.map((page) => page.detail))].join(" · ");
+    notes.push(`La página respondió pero no trae datos de eventos (${details})`);
   }
   return { events, note: notes.length > 0 ? notes.join(" · ") : undefined };
 }
