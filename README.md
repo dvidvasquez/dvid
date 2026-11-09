@@ -4,6 +4,8 @@ Portafolio personal estilo red social: el inicio reúne las últimas noticias de
 
 Las fuentes de noticias se configuran en `src/constants/newsSources.ts`. Si una fuente no tiene `feedUrl`, se busca el feed automáticamente en su página. El estado de cada fuente se puede ver en `/fuentes`.
 
+La **agenda** (`/agenda`) reúne los próximos eventos de Medellín y alrededores (conciertos, teatro, ferias y festivales) para los siguientes 60 días, con filtro por fechas, tipo, municipio y texto. Las fuentes se configuran en `src/constants/eventSources.ts` (hoy: Medellín Guru, vía su API de The Events Calendar y, si falla, su calendario iCal) y se actualizan cada 3 horas. Cada evento muestra su imagen o, si no tiene, una portada por defecto (`public/defaults/events.svg`). Para agregar una fuente basta con un calendario `.ics` público (`kind: "ics"`).
+
 ## Stack
 
 - [Next.js 16](https://nextjs.org) (App Router, Server Components)
@@ -72,3 +74,4 @@ El comando imprime la URL pública final; esa es la que va en `heroImage`, `phot
 - `npm run storage:setup` — crea el bucket público `media` en Supabase Storage si no existe
 - `npm run storage:upload -- <archivo> <ruta-en-bucket>` — sube un archivo a Storage y devuelve su URL pública
 - `npm run news:check` — revisa qué fuentes de noticias (`src/constants/newsSources.ts`) responden con un feed RSS/Atom
+- `npm run events:check` — revisa qué fuentes de eventos (`src/constants/eventSources.ts`) responden, cuántos eventos traen y con cuántas imágenes

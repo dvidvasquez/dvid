@@ -12,7 +12,8 @@
     "storage:setup": "npx tsx scripts/setup-storage.ts",
     "storage:upload": "npx tsx scripts/upload-media.ts",
     "test": "tsx --test src/utils/tests/*.test.ts",
-    "news:check": "npx tsx scripts/check-news-sources.ts"
+    "news:check": "npx tsx scripts/check-news-sources.ts",
+    "events:check": "npx tsx scripts/check-event-sources.ts"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
