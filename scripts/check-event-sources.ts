@@ -1,6 +1,7 @@
 // Revisa que cada fuente de eventos responda y muestra cuantos eventos trae, con cuantas imagenes.
 // Uso: npm run events:check
 import { EVENT_CATEGORIES } from "../src/constants/events";
+import { EVENT_SOURCE_VIA_LABELS } from "../src/constants/eventSources";
 import { getEventsFeed } from "../src/services/events.service";
 import { formatEventTime } from "../src/utils/formatEventTime";
 import { toDayKey } from "../src/utils/toDayKey";
@@ -12,10 +13,9 @@ async function main() {
   const { events, statuses } = await getEventsFeed();
 
   for (const { source, status, via, eventCount, withImageCount, message } of statuses) {
+    const summary = `${eventCount} eventos (${withImageCount} con imagen) · vía ${via ? EVENT_SOURCE_VIA_LABELS[via] : "—"}`;
     const detail =
-      status === "ok"
-        ? `${eventCount} eventos (${withImageCount} con imagen) · vía ${via?.toUpperCase()}`
-        : (message ?? "sin eventos en el rango");
+      status === "ok" ? [summary, message].filter(Boolean).join(" · ") : (message ?? "sin eventos en el rango");
     console.log(`${ICONS[status]} ${source.nombre.padEnd(24)} ${detail}`);
   }
 
