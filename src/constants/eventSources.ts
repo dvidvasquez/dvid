@@ -147,6 +147,30 @@ export const EVENT_SOURCES: EventSource[] = [
     pages: [{ url: "https://www.medellinstyle.com/eventos", categoryHint: "electronica" }],
   },
   {
+    // Charlas, observaciones, shows del domo y conciertos gratis. El Planetario lo opera Parque Explora y su agenda sale en las dos webs.
+    nombre: "Parque Explora y Planetario",
+    url: "https://www.parqueexplora.org/programate",
+    kind: "jsonld",
+    pages: [
+      { url: "https://www.parqueexplora.org/programate" },
+      { url: "https://www.planetariomedellin.org/agenda-cultural" },
+    ],
+  },
+  {
+    // Talleres, mercado verde y eventos en el Orquideorama. A probar: el panel dirá si trae JSON-LD.
+    nombre: "Jardín Botánico",
+    url: "https://www.botanicomedellin.org/agenda/",
+    kind: "jsonld",
+    pages: [{ url: "https://www.botanicomedellin.org/agenda/" }],
+  },
+  {
+    // Noches de club en Medellín (Salón Amador, Rama Soundgarden, Ministry Club, Xero, Sonorama) y festivales. A probar.
+    nombre: "Techno Airlines",
+    url: "https://www.technoairlines.com/events/medellin",
+    kind: "jsonld",
+    pages: [{ url: "https://www.technoairlines.com/events/medellin", categoryHint: "electronica" }],
+  },
+  {
     // Orquesta Sinfónica, cine, teatro y exposiciones de EAFIT abiertos al público. A probar: el panel dirá si trae datos estructurados.
     nombre: "EAFIT",
     url: "https://www.eafit.edu.co/calendario-eventos",
