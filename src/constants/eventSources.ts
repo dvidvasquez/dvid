@@ -2,8 +2,11 @@ import type { EventCategory } from "@/types/event";
 
 /** Una pagina HTML con eventos y, si todo lo que lista es de un genero, la categoria a usar. */
 export type JsonLdPage = {
+  /** Si lleva `{month}` y `months`, se lee una pagina por mes (`YYYY-MM`) desde el mes actual. */
   url: string;
   categoryHint?: EventCategory;
+  /** Cuantos meses leer cuando `url` trae `{month}`. */
+  months?: number;
 };
 
 /** Por donde se leyo una fuente: API REST, exportacion iCal o datos estructurados de la pagina (JSON-LD o microdatos). */
@@ -50,7 +53,10 @@ const INFOLOCAL_AGENDA = "https://infolocal.comfenalcoantioquia.com/index.php/ag
  * respondian 403 (bloquean trafico automatico: Medellín Guru, Bandsintown, JamBase, Eventworld,
  * Medellín.co, Cartel Rock), 429 (Vamos Eventos) o no traian datos de eventos (Fever, Medellín
  * Vibra y las paginas de Teatro Metropolitano, Matacandelas y La Tiquetera: sin JSON-LD ni
- * microdatos). Los teatros salen por Infolocal, Descubre Medellín y Medellín Travel.
+ * microdatos), 500 (Qué Pasa Hoy) o solo traian la ficha del sitio (Kalender). Los teatros salen
+ * por Infolocal y Descubre Medellín; las universidades por el Teatro Universidad de Medellín y el
+ * calendario de EAFIT. Quedan fuera las que solo publican PDF, imagenes o redes sociales (casas de
+ * cultura, UdeA, UNAL) y los eventos de medellin.gov.co (robots.txt no permite leerlos).
  */
 export const EVENT_SOURCES: EventSource[] = [
   {
@@ -105,21 +111,27 @@ export const EVENT_SOURCES: EventSource[] = [
     ],
   },
   {
+    // /events-calendar/ se arma con JavaScript (sin eventos); la vista mensual sale ya armada desde el servidor.
     nombre: "Medellín Travel",
-    url: "https://www.medellin.travel/events-calendar/",
+    url: "https://www.medellin.travel/eventos/",
     kind: "jsonld",
-    pages: [{ url: "https://www.medellin.travel/events-calendar/" }],
+    pages: [{ url: "https://www.medellin.travel/eventos/month/{month}/?lang=en", months: 3 }],
   },
   {
-    nombre: "Qué Pasa Hoy",
-    url: "https://quepasahoy.com.co/",
+    // Teatro de la Universidad de Medellín (1.700 sillas): conciertos, stand-up y sinfónicos. Calendario con eventos en JSON.
+    nombre: "Teatro Universidad de Medellín",
+    url: "https://teatro.udemedellin.edu.co/eventos/",
     kind: "jsonld",
-    pages: [{ url: "https://quepasahoy.com.co/" }],
+    pages: [
+      { url: "https://teatro.udemedellin.edu.co/eventos/" },
+      { url: "https://teatro.udemedellin.edu.co/mec-category/eventos-universidad/" },
+    ],
   },
   {
-    nombre: "Kalender",
-    url: "https://kalender.city/eventos/medellin",
+    // Orquesta Sinfónica, cine, teatro y exposiciones de EAFIT abiertos al público. A probar: el panel dirá si trae datos estructurados.
+    nombre: "EAFIT",
+    url: "https://www.eafit.edu.co/calendario-eventos",
     kind: "jsonld",
-    pages: [{ url: "https://kalender.city/eventos/medellin" }],
+    pages: [{ url: "https://www.eafit.edu.co/calendario-eventos" }],
   },
 ];

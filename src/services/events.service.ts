@@ -11,6 +11,7 @@ import { addDaysToKey } from "@/utils/addDaysToKey";
 import { collectJsonLdEvents } from "@/utils/collectJsonLdEvents";
 import { dedupeEvents } from "@/utils/dedupeEvents";
 import { describeStructuredData } from "@/utils/describeStructuredData";
+import { expandJsonLdPages } from "@/utils/expandJsonLdPages";
 import { extractJsonLd } from "@/utils/extractJsonLd";
 import { extractMicrodata } from "@/utils/extractMicrodata";
 import { getEventDayKeys } from "@/utils/getEventDayKeys";
@@ -161,8 +162,8 @@ async function loadJsonLdPage(
   return { events, structured: nodes.length, detail: describeStructuredData(result.text, blocks) };
 }
 
-async function loadJsonLd(source: Extract<EventSource, { kind: "jsonld" }>): Promise<Loaded> {
-  const pages = await Promise.all(source.pages.map((page) => loadJsonLdPage(source, page)));
+async function loadJsonLd(source: Extract<EventSource, { kind: "jsonld" }>, now: Date): Promise<Loaded> {
+  const pages = await Promise.all(expandJsonLdPages(source.pages, now).map((page) => loadJsonLdPage(source, page)));
   const loaded = pages.flatMap((page) => ("error" in page ? [] : [page]));
   const failures = pages.flatMap((page) => ("error" in page ? [page.error] : []));
 
@@ -192,7 +193,7 @@ async function loadSource(
   const hasEvents = (loaded: Loaded) => "events" in loaded && loaded.events.some((e) => isInWindow(e, window, nowMs));
 
   if (source.kind === "jsonld") {
-    attempts.push({ via: "jsonld", loaded: await loadJsonLd(source) });
+    attempts.push({ via: "jsonld", loaded: await loadJsonLd(source, new Date(nowMs)) });
   } else {
     if (source.kind === "tribe") attempts.push({ via: "rest", loaded: await loadTribeRest(source, window) });
     if (!attempts.some(({ loaded }) => hasEvents(loaded))) attempts.push({ via: "ics", loaded: await loadIcs(source) });
