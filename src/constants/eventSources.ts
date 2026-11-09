@@ -58,7 +58,8 @@ const INFOLOCAL_AGENDA = "https://infolocal.comfenalcoantioquia.com/index.php/ag
  * calendario de EAFIT. Quedan fuera las que solo publican PDF, imagenes o redes sociales (casas de
  * cultura, UdeA, UNAL) y los eventos de medellin.gov.co (robots.txt no permite leerlos).
  * Las tiqueteras no ofrecen API publica: La Tiquetera se esta cerrando (migra a Ticketmaster) y
- * tuboleta.com se arma con JavaScript; de Tuboleta solo se prueban los listados por recinto.
+ * de Tuboleta solo se prueban los listados por recinto (no se probo tuboleta.com).
+ * Si una pagina no trae JSON-LD ni microdatos se lee el JSON embebido o las tarjetas con <time>.
  */
 export const EVENT_SOURCES: EventSource[] = [
   {
