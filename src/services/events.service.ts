@@ -12,6 +12,7 @@ import { collectJsonLdEvents } from "@/utils/collectJsonLdEvents";
 import { dedupeEvents } from "@/utils/dedupeEvents";
 import { describeStructuredData } from "@/utils/describeStructuredData";
 import { extractJsonLd } from "@/utils/extractJsonLd";
+import { extractMicrodata } from "@/utils/extractMicrodata";
 import { getEventDayKeys } from "@/utils/getEventDayKeys";
 import { icsToAgendaEvent } from "@/utils/icsToAgendaEvent";
 import { isEventFinished } from "@/utils/isEventFinished";
@@ -25,6 +26,8 @@ import { tribeToAgendaEvent } from "@/utils/tribeToAgendaEvent";
 export const EVENTS_REVALIDATE_SECONDS = 10800;
 
 const REQUEST_TIMEOUT_MS = 8000;
+const RETRY_DELAY_MS = 1200;
+const MAX_RETRY_DELAY_MS = 3000;
 const REST_PAGE_SIZE = 50;
 const MAX_REST_PAGES = 6;
 const USER_AGENT = "Mozilla/5.0 (compatible; DvidAgenda/1.0; agenda personal de eventos)";
@@ -54,18 +57,37 @@ type Loaded = { events: AgendaEvent[]; note?: string } | { error: string };
 
 type IcsSource = Extract<EventSource, { icsUrl: string }>;
 
-async function fetchText(url: string, accept: string): Promise<{ ok: true; text: string } | { ok: false; error: string }> {
+type Fetched = { ok: true; text: string } | { ok: false; error: string; status?: number; retryAfterMs?: number };
+
+async function requestText(url: string, accept: string): Promise<Fetched> {
   try {
     const response = await fetch(url, {
       headers: { "User-Agent": USER_AGENT, Accept: accept },
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       next: { revalidate: EVENTS_REVALIDATE_SECONDS },
     });
-    if (!response.ok) return { ok: false, error: `HTTP ${response.status}` };
+    if (!response.ok) {
+      const retryAfter = Number(response.headers.get("retry-after"));
+      return {
+        ok: false,
+        error: `HTTP ${response.status}`,
+        status: response.status,
+        retryAfterMs: Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : undefined,
+      };
+    }
     return { ok: true, text: await response.text() };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.name : "Error de red" };
   }
+}
+
+/** Si el sitio pide esperar (HTTP 429) se reintenta una vez, despues de una pausa corta. */
+async function fetchText(url: string, accept: string): Promise<{ ok: true; text: string } | { ok: false; error: string }> {
+  const first = await requestText(url, accept);
+  if (first.ok || first.status !== 429) return first;
+
+  await new Promise((resolve) => setTimeout(resolve, Math.min(first.retryAfterMs ?? RETRY_DELAY_MS, MAX_RETRY_DELAY_MS)));
+  return requestText(url, accept);
 }
 
 function buildRestUrl(restUrl: string, window: DayRange): string {
@@ -122,7 +144,7 @@ async function loadIcs(source: IcsSource): Promise<Loaded> {
   return { events };
 }
 
-/** Lee una pagina HTML: sus eventos, cuantos bloques de eventos trajo y que datos estructurados tiene. */
+/** Lee una pagina HTML (JSON-LD y microdatos): sus eventos, cuantos bloques de eventos trajo y que datos estructurados tiene. */
 async function loadJsonLdPage(
   source: Extract<EventSource, { kind: "jsonld" }>,
   page: JsonLdPage,
@@ -131,7 +153,7 @@ async function loadJsonLdPage(
   if (!result.ok) return { error: result.error };
 
   const blocks = extractJsonLd(result.text);
-  const nodes = collectJsonLdEvents(blocks);
+  const nodes = [...collectJsonLdEvents(blocks), ...extractMicrodata(result.text)];
   const pageSource = { nombre: source.nombre, url: source.url, categoryHint: page.categoryHint };
   const events = nodes
     .map((node) => jsonLdToAgendaEvent(node, pageSource, page.url))
