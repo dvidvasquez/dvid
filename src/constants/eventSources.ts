@@ -140,6 +140,13 @@ export const EVENT_SOURCES: EventSource[] = [
     ],
   },
   {
+    // Techno y electrónica en Medellín (Freedom, Vimukti, Blackdance...): 19 entradas con imagen. A probar: el panel dirá si trae JSON-LD.
+    nombre: "Medellín Style",
+    url: "https://www.medellinstyle.com/eventos",
+    kind: "jsonld",
+    pages: [{ url: "https://www.medellinstyle.com/eventos", categoryHint: "electronica" }],
+  },
+  {
     // Orquesta Sinfónica, cine, teatro y exposiciones de EAFIT abiertos al público. A probar: el panel dirá si trae datos estructurados.
     nombre: "EAFIT",
     url: "https://www.eafit.edu.co/calendario-eventos",
