@@ -11,7 +11,7 @@
 
 .list {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   align-items: center;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
@@ -25,7 +25,8 @@
   display: grid;
   justify-items: center;
   margin-inline: auto;
-  width: 3rem;
+  /* Con 6 items, en pantallas de 320 px la celda mide ~45 px: el enlace se achica en vez de solaparse. */
+  width: min(3rem, 100%);
   height: 3rem;
   place-content: center;
   border-radius: var(--radius-md);

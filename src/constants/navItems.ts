@@ -1,6 +1,7 @@
 
 import {
     BriefcaseIcon as BriefcaseOutlineIcon,
+    CalendarDaysIcon as CalendarDaysOutlineIcon,
     CloudIcon as CloudOutlineIcon,
     HomeIcon as HomeOutlineIcon,
     MapIcon as MapOutlineIcon,
@@ -8,6 +9,7 @@ import {
 } from "@heroicons/react/24/outline";
 import {
     BriefcaseIcon as BriefcaseSolidIcon,
+    CalendarDaysIcon as CalendarDaysSolidIcon,
     CloudIcon as CloudSolidIcon,
     HomeIcon as HomeSolidIcon,
     MapIcon as MapSolidIcon,
@@ -24,6 +26,7 @@ export type NavItem = {
 export const NAV_ITEMS: NavItem[] = [
     { label: "Inicio", href: "/", icon: HomeOutlineIcon, activeIcon: HomeSolidIcon },
     { label: "Clima", href: "/clima", icon: CloudOutlineIcon, activeIcon: CloudSolidIcon },
+    { label: "Agenda", href: "/agenda", icon: CalendarDaysOutlineIcon, activeIcon: CalendarDaysSolidIcon },
     { label: "Viajes", href: "/travels", icon: MapOutlineIcon, activeIcon: MapSolidIcon },
     { label: "Proyectos", href: "/projects", icon: BriefcaseOutlineIcon, activeIcon: BriefcaseSolidIcon },
     { label: "Perfil", href: "/profile", icon: UserOutlineIcon, activeIcon: UserSolidIcon },
