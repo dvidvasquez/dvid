@@ -8,12 +8,16 @@ import {
 import { EVENTS_WINDOW_DAYS } from "@/constants/events";
 import type { AgendaEvent, DayRange } from "@/types/event";
 import { addDaysToKey } from "@/utils/addDaysToKey";
-import { collectJsonLdEvents } from "@/utils/collectJsonLdEvents";
+import { collectEmbeddedEvents } from "@/utils/collectEmbeddedEvents";
+import { collectJsonLdEvents, type JsonLdNode } from "@/utils/collectJsonLdEvents";
 import { dedupeEvents } from "@/utils/dedupeEvents";
+import { describeEmbeddedData } from "@/utils/describeEmbeddedData";
 import { describeStructuredData } from "@/utils/describeStructuredData";
 import { expandJsonLdPages } from "@/utils/expandJsonLdPages";
+import { extractEmbeddedJson } from "@/utils/extractEmbeddedJson";
 import { extractJsonLd } from "@/utils/extractJsonLd";
 import { extractMicrodata } from "@/utils/extractMicrodata";
+import { extractTimeCards } from "@/utils/extractTimeCards";
 import { getEventDayKeys } from "@/utils/getEventDayKeys";
 import { icsToAgendaEvent } from "@/utils/icsToAgendaEvent";
 import { isEventFinished } from "@/utils/isEventFinished";
@@ -145,21 +149,54 @@ async function loadIcs(source: IcsSource): Promise<Loaded> {
   return { events };
 }
 
-/** Lee una pagina HTML (JSON-LD y microdatos): sus eventos, cuantos bloques de eventos trajo y que datos estructurados tiene. */
+/** De donde salieron los eventos de una pagina; los lectores de respaldo solo se prueban si el anterior no dio eventos. */
+type PageReader = "jsonld" | "embedded" | "cards";
+
+const READER_NOTES: Record<PageReader, string | null> = {
+  jsonld: null,
+  embedded: "datos embebidos de la página",
+  cards: "tarjetas HTML con fecha",
+};
+
+type PageResult = { events: AgendaEvent[]; structured: number; detail: string; reader: PageReader };
+
+/**
+ * Lee una pagina HTML y da sus eventos, cuantos bloques de eventos trajo y que datos tiene. Primero
+ * schema.org (JSON-LD y microdatos); si no da eventos, el JSON embebido (Next.js, Nuxt...) y, por
+ * ultimo, las tarjetas con `<time datetime>`.
+ */
 async function loadJsonLdPage(
   source: Extract<EventSource, { kind: "jsonld" }>,
   page: JsonLdPage,
-): Promise<{ events: AgendaEvent[]; structured: number; detail: string } | { error: string }> {
+): Promise<PageResult | { error: string }> {
   const result = await fetchText(page.url, "text/html,application/xhtml+xml;q=0.9,*/*;q=0.5");
   if (!result.ok) return { error: result.error };
 
-  const blocks = extractJsonLd(result.text);
-  const nodes = [...collectJsonLdEvents(blocks), ...extractMicrodata(result.text)];
   const pageSource = { nombre: source.nombre, url: source.url, categoryHint: page.categoryHint };
-  const events = nodes
-    .map((node) => jsonLdToAgendaEvent(node, pageSource, page.url))
-    .filter((event): event is AgendaEvent => event !== null);
-  return { events, structured: nodes.length, detail: describeStructuredData(result.text, blocks) };
+  const toEvents = (nodes: JsonLdNode[]) =>
+    nodes.map((node) => jsonLdToAgendaEvent(node, pageSource, page.url)).filter((event): event is AgendaEvent => event !== null);
+
+  const blocks = extractJsonLd(result.text);
+  const schemaNodes = [...collectJsonLdEvents(blocks), ...extractMicrodata(result.text)];
+  const schemaEvents = toEvents(schemaNodes);
+  if (schemaEvents.length > 0) return { events: schemaEvents, structured: schemaNodes.length, detail: "", reader: "jsonld" };
+
+  const embedded = extractEmbeddedJson(result.text);
+  const embeddedNodes = collectEmbeddedEvents(embedded.map(({ value }) => value));
+  const embeddedEvents = toEvents(embeddedNodes);
+  if (embeddedEvents.length > 0) {
+    return { events: embeddedEvents, structured: schemaNodes.length + embeddedNodes.length, detail: "", reader: "embedded" };
+  }
+
+  const cardNodes = extractTimeCards(result.text);
+  const cardEvents = toEvents(cardNodes);
+  const detail = [describeStructuredData(result.text, blocks), describeEmbeddedData(result.text, embedded)].join(", ");
+  return {
+    events: cardEvents,
+    structured: schemaNodes.length + embeddedNodes.length + cardNodes.length,
+    detail,
+    reader: cardEvents.length > 0 ? "cards" : "jsonld",
+  };
 }
 
 async function loadJsonLd(source: Extract<EventSource, { kind: "jsonld" }>, now: Date): Promise<Loaded> {
@@ -172,6 +209,11 @@ async function loadJsonLd(source: Extract<EventSource, { kind: "jsonld" }>, now:
   const events = loaded.flatMap((page) => page.events);
   const notes: string[] = [];
   if (failures.length > 0) notes.push(`${failures.length} de ${pages.length} páginas fallaron (${failures.join(", ")})`);
+
+  const fallbackReaders = new Set(loaded.flatMap((page) => (page.events.length > 0 ? [READER_NOTES[page.reader]] : [])));
+  fallbackReaders.delete(null);
+  if (fallbackReaders.size > 0) notes.push(`Eventos leídos de ${[...fallbackReaders].join(" y ")}`);
+
   if (events.length === 0 && loaded.every((page) => page.structured === 0)) {
     const details = [...new Set(loaded.map((page) => page.detail))].join(" · ");
     notes.push(`La página respondió pero no trae datos de eventos (${details})`);
