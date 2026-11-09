@@ -6,13 +6,13 @@ export type JsonLdPage = {
   categoryHint?: EventCategory;
 };
 
-/** Por donde se leyo una fuente: API REST, exportacion iCal o datos estructurados de la pagina. */
+/** Por donde se leyo una fuente: API REST, exportacion iCal o datos estructurados de la pagina (JSON-LD o microdatos). */
 export type EventSourceVia = "rest" | "ics" | "jsonld";
 
 export const EVENT_SOURCE_VIA_LABELS: Record<EventSourceVia, string> = {
   rest: "API",
   ics: "iCal",
-  jsonld: "JSON-LD",
+  jsonld: "Página",
 };
 
 export type EventSource =
@@ -35,21 +35,22 @@ export type EventSource =
   | {
       nombre: string;
       url: string;
-      /** Paginas con datos estructurados de eventos (schema.org, JSON-LD), sin necesidad de API. */
+      /** Paginas con datos estructurados de eventos (schema.org en JSON-LD o microdatos), sin necesidad de API. */
       kind: "jsonld";
       pages: JsonLdPage[];
     };
 
 const SONGKICK_MEDELLIN = "https://www.songkick.com/metro-areas/28331-colombia-medellin";
 const EVENTBRITE_MEDELLIN = "https://www.eventbrite.com/d/colombia--medell%C3%ADn";
+const ALLEVENTS_MEDELLIN = "https://allevents.in/medellin";
+const INFOLOCAL_AGENDA = "https://infolocal.comfenalcoantioquia.com/index.php/agenda";
 
 /**
- * Las fuentes se revisan en el panel «Fuentes» de /agenda. Se quitaron las que desde el servidor
+ * Las fuentes se revisan en el panel «Fuentes» de /agenda. Se sacaron las que desde el servidor
  * respondian 403 (bloquean trafico automatico: Medellín Guru, Bandsintown, JamBase, Eventworld,
- * Medellín.co), 404/410 (el calendario de Medellín Travel cambio de URL) o no traian eventos (Fever).
- * Songkick y Eventbrite son las que se confirmaron funcionando; el resto son sitios locales y
- * agendas de teatros que se prueban por JSON-LD: si el panel dice que no traen datos, se quitan o
- * se les escribe un lector propio.
+ * Medellín.co, Cartel Rock), 429 (Vamos Eventos) o no traian datos de eventos (Fever, Medellín
+ * Vibra y las paginas de Teatro Metropolitano, Matacandelas y La Tiquetera: sin JSON-LD ni
+ * microdatos). Los teatros salen por Infolocal, Descubre Medellín y Medellín Travel.
  */
 export const EVENT_SOURCES: EventSource[] = [
   {
@@ -75,16 +76,16 @@ export const EVENT_SOURCES: EventSource[] = [
     ],
   },
   {
-    nombre: "Infolocal Comfenalco",
-    url: "https://infolocal.comfenalcoantioquia.com/index.php/agenda",
+    nombre: "AllEvents",
+    url: ALLEVENTS_MEDELLIN,
     kind: "jsonld",
-    pages: [{ url: "https://infolocal.comfenalcoantioquia.com/index.php/agenda" }],
-  },
-  {
-    nombre: "Medellín Travel",
-    url: "https://www.medellin.travel/caleventos/",
-    kind: "jsonld",
-    pages: [{ url: "https://www.medellin.travel/caleventos/" }],
+    pages: [
+      { url: ALLEVENTS_MEDELLIN },
+      { url: `${ALLEVENTS_MEDELLIN}/music`, categoryHint: "musica" },
+      { url: `${ALLEVENTS_MEDELLIN}/performing-arts`, categoryHint: "teatro" },
+      { url: `${ALLEVENTS_MEDELLIN}/nightlife` },
+      { url: `${ALLEVENTS_MEDELLIN}/festivals`, categoryHint: "feria" },
+    ],
   },
   {
     nombre: "Descubre Medellín",
@@ -93,52 +94,32 @@ export const EVENT_SOURCES: EventSource[] = [
     pages: [{ url: "https://descubremedellin.co/es/agenda/" }],
   },
   {
-    nombre: "Vamos Eventos",
-    url: "https://www.vamoseventos.com/medellin",
+    // Teatro Prado, Pablo Tobon, Pequeño Teatro, Casa Clown...: eventos en microdatos, 21 por pagina.
+    nombre: "Infolocal Comfenalco",
+    url: INFOLOCAL_AGENDA,
     kind: "jsonld",
     pages: [
-      { url: "https://www.vamoseventos.com/medellin" },
-      { url: "https://www.vamoseventos.com/medellin/hoy" },
+      { url: INFOLOCAL_AGENDA },
+      { url: `${INFOLOCAL_AGENDA}?controller=search&orderBy=start_date%20asc&start=21` },
+      { url: `${INFOLOCAL_AGENDA}?controller=search&orderBy=start_date%20asc&start=42` },
     ],
   },
   {
-    nombre: "AllEvents",
-    url: "https://allevents.in/medellin",
+    nombre: "Medellín Travel",
+    url: "https://www.medellin.travel/events-calendar/",
     kind: "jsonld",
-    pages: [
-      { url: "https://allevents.in/medellin" },
-      { url: "https://allevents.in/medellin/music", categoryHint: "musica" },
-    ],
+    pages: [{ url: "https://www.medellin.travel/events-calendar/" }],
   },
   {
-    nombre: "Cartel Rock",
-    url: "https://cartelrock.com/eventos",
+    nombre: "Qué Pasa Hoy",
+    url: "https://quepasahoy.com.co/",
     kind: "jsonld",
-    // municipio:23 es Medellin en el filtro del sitio.
-    pages: [{ url: "https://cartelrock.com/eventos?f%5B0%5D=municipio%3A23", categoryHint: "rock" }],
+    pages: [{ url: "https://quepasahoy.com.co/" }],
   },
   {
-    nombre: "Medellín Vibra",
-    url: "https://www.medellinvibra.co/",
+    nombre: "Kalender",
+    url: "https://kalender.city/eventos/medellin",
     kind: "jsonld",
-    pages: [{ url: "https://www.medellinvibra.co/" }],
-  },
-  {
-    nombre: "Teatro Metropolitano",
-    url: "https://www.teatrometropolitano.com/programacion/eventos",
-    kind: "jsonld",
-    pages: [{ url: "https://www.teatrometropolitano.com/programacion/eventos" }],
-  },
-  {
-    nombre: "Matacandelas",
-    url: "https://www.matacandelas.com/",
-    kind: "jsonld",
-    pages: [{ url: "https://www.matacandelas.com/" }],
-  },
-  {
-    nombre: "La Tiquetera (Comfama)",
-    url: "https://latiquetera.com/site/comfama",
-    kind: "jsonld",
-    pages: [{ url: "https://latiquetera.com/site/comfama" }],
+    pages: [{ url: "https://kalender.city/eventos/medellin" }],
   },
 ];
