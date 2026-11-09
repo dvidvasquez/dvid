@@ -1,11 +1,20 @@
-import { EVENT_SOURCES, type EventSource } from "@/constants/eventSources";
+import {
+  EVENT_SOURCE_VIA_LABELS,
+  EVENT_SOURCES,
+  type EventSource,
+  type EventSourceVia,
+  type JsonLdPage,
+} from "@/constants/eventSources";
 import { EVENTS_WINDOW_DAYS } from "@/constants/events";
 import type { AgendaEvent, DayRange } from "@/types/event";
 import { addDaysToKey } from "@/utils/addDaysToKey";
+import { collectJsonLdEvents } from "@/utils/collectJsonLdEvents";
 import { dedupeEvents } from "@/utils/dedupeEvents";
+import { extractJsonLd } from "@/utils/extractJsonLd";
 import { getEventDayKeys } from "@/utils/getEventDayKeys";
 import { icsToAgendaEvent } from "@/utils/icsToAgendaEvent";
 import { isEventFinished } from "@/utils/isEventFinished";
+import { jsonLdToAgendaEvent } from "@/utils/jsonLdToAgendaEvent";
 import { parseIcs } from "@/utils/parseIcs";
 import { toDayKey } from "@/utils/toDayKey";
 import { toSafeHttpsUrl } from "@/utils/toSafeHttpsUrl";
@@ -24,9 +33,10 @@ export type EventSourceStatus = {
   /** `sin-eventos`: la fuente respondio pero no hay nada en el rango. */
   status: "ok" | "sin-eventos" | "error";
   /** Por donde se leyeron los eventos. */
-  via: "rest" | "ics" | null;
+  via: EventSourceVia | null;
   eventCount: number;
   withImageCount: number;
+  /** Que fallo o que le falto a la fuente; sirve para saber por que no hay eventos. */
   message?: string;
 };
 
@@ -38,7 +48,10 @@ export type EventsFeed = {
   generatedAt: string;
 };
 
-type Loaded = { events: AgendaEvent[] } | { error: string };
+/** `note` avisa de algo que no impidio leer eventos (p. ej. una pagina que fallo). */
+type Loaded = { events: AgendaEvent[]; note?: string } | { error: string };
+
+type IcsSource = Extract<EventSource, { icsUrl: string }>;
 
 async function fetchText(url: string, accept: string): Promise<{ ok: true; text: string } | { ok: false; error: string }> {
   try {
@@ -97,7 +110,7 @@ async function loadTribeRest(source: Extract<EventSource, { kind: "tribe" }>, wi
   return { events };
 }
 
-async function loadIcs(source: EventSource): Promise<Loaded> {
+async function loadIcs(source: IcsSource): Promise<Loaded> {
   const result = await fetchText(source.icsUrl, "text/calendar, text/plain;q=0.8, */*;q=0.5");
   if (!result.ok) return { error: result.error };
   if (!result.text.includes("BEGIN:VCALENDAR")) return { error: "No es un calendario iCal" };
@@ -106,6 +119,38 @@ async function loadIcs(source: EventSource): Promise<Loaded> {
     .map((event) => icsToAgendaEvent(event, source))
     .filter((event): event is AgendaEvent => event !== null);
   return { events };
+}
+
+/** Lee una pagina HTML: sus eventos y cuantos bloques de eventos trajo. */
+async function loadJsonLdPage(
+  source: Extract<EventSource, { kind: "jsonld" }>,
+  page: JsonLdPage,
+): Promise<{ events: AgendaEvent[]; structured: number } | { error: string }> {
+  const result = await fetchText(page.url, "text/html,application/xhtml+xml;q=0.9,*/*;q=0.5");
+  if (!result.ok) return { error: result.error };
+
+  const nodes = collectJsonLdEvents(extractJsonLd(result.text));
+  const pageSource = { nombre: source.nombre, url: source.url, categoryHint: page.categoryHint };
+  const events = nodes
+    .map((node) => jsonLdToAgendaEvent(node, pageSource, page.url))
+    .filter((event): event is AgendaEvent => event !== null);
+  return { events, structured: nodes.length };
+}
+
+async function loadJsonLd(source: Extract<EventSource, { kind: "jsonld" }>): Promise<Loaded> {
+  const pages = await Promise.all(source.pages.map((page) => loadJsonLdPage(source, page)));
+  const loaded = pages.flatMap((page) => ("error" in page ? [] : [page]));
+  const failures = pages.flatMap((page) => ("error" in page ? [page.error] : []));
+
+  if (loaded.length === 0) return { error: failures.join(", ") || "Sin paginas" };
+
+  const events = loaded.flatMap((page) => page.events);
+  const notes: string[] = [];
+  if (failures.length > 0) notes.push(`${failures.length} de ${pages.length} páginas fallaron (${failures.join(", ")})`);
+  if (events.length === 0 && loaded.every((page) => page.structured === 0)) {
+    notes.push("La página respondió pero no trae datos de eventos (JSON-LD)");
+  }
+  return { events, note: notes.length > 0 ? notes.join(" · ") : undefined };
 }
 
 function isInWindow(event: AgendaEvent, window: DayRange, nowMs: number): boolean {
@@ -118,12 +163,17 @@ async function loadSource(
   window: DayRange,
   nowMs: number,
 ): Promise<{ status: EventSourceStatus; events: AgendaEvent[] }> {
-  const attempts: Array<{ via: "rest" | "ics"; loaded: Loaded }> = [];
-
-  if (source.kind === "tribe") attempts.push({ via: "rest", loaded: await loadTribeRest(source, window) });
+  const attempts: Array<{ via: EventSourceVia; loaded: Loaded }> = [];
   const hasEvents = (loaded: Loaded) => "events" in loaded && loaded.events.some((e) => isInWindow(e, window, nowMs));
-  if (!attempts.some(({ loaded }) => hasEvents(loaded))) attempts.push({ via: "ics", loaded: await loadIcs(source) });
 
+  if (source.kind === "jsonld") {
+    attempts.push({ via: "jsonld", loaded: await loadJsonLd(source) });
+  } else {
+    if (source.kind === "tribe") attempts.push({ via: "rest", loaded: await loadTribeRest(source, window) });
+    if (!attempts.some(({ loaded }) => hasEvents(loaded))) attempts.push({ via: "ics", loaded: await loadIcs(source) });
+  }
+
+  const notes = attempts.flatMap(({ loaded }) => ("note" in loaded && loaded.note ? [loaded.note] : []));
   const winner = attempts.find(({ loaded }) => hasEvents(loaded));
   if (winner && "events" in winner.loaded) {
     const events = winner.loaded.events.filter((event) => isInWindow(event, window, nowMs));
@@ -133,12 +183,14 @@ async function loadSource(
       via: winner.via,
       eventCount: events.length,
       withImageCount: events.filter((event) => event.image).length,
+      message: notes.length > 0 ? notes.join(" · ") : undefined,
     };
     return { status, events };
   }
 
-  const errors = attempts.flatMap(({ via, loaded }) => ("error" in loaded ? [`${via.toUpperCase()}: ${loaded.error}`] : []));
+  const errors = attempts.flatMap(({ via, loaded }) => ("error" in loaded ? [`${EVENT_SOURCE_VIA_LABELS[via]}: ${loaded.error}`] : []));
   const failed = errors.length === attempts.length;
+  const details = [...errors, ...notes];
   return {
     status: {
       source,
@@ -146,7 +198,7 @@ async function loadSource(
       via: null,
       eventCount: 0,
       withImageCount: 0,
-      message: errors.length > 0 ? errors.join(" · ") : undefined,
+      message: details.length > 0 ? details.join(" · ") : undefined,
     },
     events: [],
   };
