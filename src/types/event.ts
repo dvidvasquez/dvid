@@ -51,3 +51,10 @@ export type EventDayGroup = {
   dayKey: string;
   occurrences: EventOccurrence[];
 };
+
+/** Un evento guardado en un dia concreto: de un evento de varios dias solo se guarda el dia marcado. */
+export type SavedEvent = {
+  event: AgendaEvent;
+  /** `YYYY-MM-DD` en hora de Colombia. */
+  dayKey: string;
+};

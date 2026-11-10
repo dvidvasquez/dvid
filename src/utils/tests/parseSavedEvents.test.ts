@@ -3,9 +3,11 @@ import test from "node:test";
 import { parseSavedEvents } from "../parseSavedEvents";
 import { makeEvent } from "./fixtures/makeEvent";
 
-test("devuelve los eventos tal como se guardaron", () => {
-  const events = [makeEvent({ id: "a", image: "https://example.com/a.jpg", price: 0 }), makeEvent({ id: "b", title: "Otro" })];
-  assert.deepEqual(parseSavedEvents(JSON.stringify(events)), events);
+const saved = (event = makeEvent(), dayKey = "2026-11-08") => ({ event, dayKey });
+
+test("devuelve los guardados tal como se guardaron", () => {
+  const list = [saved(makeEvent({ id: "a", image: "https://example.com/a.jpg", price: 0 })), saved(makeEvent({ id: "b", title: "Otro" }), "2026-11-09")];
+  assert.deepEqual(parseSavedEvents(JSON.stringify(list)), list);
 });
 
 test("texto vacio, JSON roto o algo que no es una lista dan una lista vacia", () => {
@@ -14,23 +16,30 @@ test("texto vacio, JSON roto o algo que no es una lista dan una lista vacia", ()
   assert.deepEqual(parseSavedEvents('{"id":"a"}'), []);
 });
 
-test("descarta lo que no tiene id, titulo, fecha valida o enlace https", () => {
+test("un evento suelto (formato anterior) queda guardado en su dia de inicio", () => {
+  const event = makeEvent({ id: "viejo" });
+  assert.deepEqual(parseSavedEvents(JSON.stringify([event])), [{ event, dayKey: "2026-11-08" }]);
+});
+
+test("descarta lo que no tiene dia valido, id, titulo, fecha valida o enlace https", () => {
   const good = makeEvent({ id: "ok" });
   const stored = [
-    good,
-    { ...good, id: "" },
-    { ...good, title: 5 },
-    { ...good, start: "mañana" },
-    { ...good, url: "javascript:alert(1)" },
+    saved(good),
+    saved(good, "8 de noviembre"),
+    { event: good },
+    saved({ ...good, id: "" }),
+    saved({ ...good, title: 5 as unknown as string }),
+    saved({ ...good, start: "mañana" }),
+    saved({ ...good, url: "javascript:alert(1)" }),
     null,
     "texto",
   ];
-  assert.deepEqual(parseSavedEvents(JSON.stringify(stored)).map(({ id }) => id), ["ok"]);
+  assert.deepEqual(parseSavedEvents(JSON.stringify(stored)).map(({ event }) => event.id), ["ok"]);
 });
 
 test("limpia los campos opcionales que vienen mal", () => {
-  const stored = [{ ...makeEvent({ id: "a" }), category: "salsa", price: "gratis", image: "http://inseguro/a.jpg", end: "nunca", municipality: "", allDay: "si" }];
-  const [event] = parseSavedEvents(JSON.stringify(stored));
+  const stored = [{ dayKey: "2026-11-08", event: { ...makeEvent({ id: "a" }), category: "salsa", price: "gratis", image: "http://inseguro/a.jpg", end: "nunca", municipality: "", allDay: "si" } }];
+  const [{ event }] = parseSavedEvents(JSON.stringify(stored));
   assert.equal(event.category, "otro");
   assert.equal(event.price, null);
   assert.equal(event.image, null);

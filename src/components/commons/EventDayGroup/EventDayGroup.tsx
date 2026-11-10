@@ -1,15 +1,15 @@
 import { EventCard } from "@/components/commons/EventCard";
-import type { AgendaEvent, EventDayGroup as EventDayGroupData } from "@/types/event";
-import { getEventKey } from "@/utils/getEventKey";
+import type { EventDayGroup as EventDayGroupData, EventOccurrence } from "@/types/event";
+import { getOccurrenceKey } from "@/utils/getOccurrenceKey";
 import { formatDayHeading } from "@/utils/formatDayHeading";
 import styles from "./EventDayGroup.module.scss";
 
 type EventDayGroupProps = {
   group: EventDayGroupData;
   todayKey: string;
-  /** Claves (`getEventKey`) de los eventos guardados. */
+  /** Claves (`getOccurrenceKey`) de los eventos guardados, por dia. */
   savedKeys: ReadonlySet<string>;
-  onToggleSaved: (event: AgendaEvent) => void;
+  onToggleSaved: (occurrence: EventOccurrence) => void;
 };
 
 /** Un dia de la agenda: titulo fijo con la fecha y la cantidad, y sus eventos. */
@@ -25,7 +25,7 @@ export function EventDayGroup({ group, todayKey, savedKeys, onToggleSaved }: Eve
       <ul className={styles.list}>
         {group.occurrences.map((occurrence) => (
           <li key={`${occurrence.event.id}-${occurrence.dayKey}`}>
-            <EventCard occurrence={occurrence} saved={savedKeys.has(getEventKey(occurrence.event))} onToggleSaved={onToggleSaved} />
+            <EventCard occurrence={occurrence} saved={savedKeys.has(getOccurrenceKey(occurrence.event, occurrence.dayKey))} onToggleSaved={onToggleSaved} />
           </li>
         ))}
       </ul>

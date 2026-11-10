@@ -12,7 +12,7 @@ import type { AgendaEvent, DayRange } from "@/types/event";
 import { addDaysToKey } from "@/utils/addDaysToKey";
 import { countActiveFilters } from "@/utils/countActiveFilters";
 import { filterEvents, NO_EVENT_FILTERS } from "@/utils/filterEvents";
-import { getEventKey } from "@/utils/getEventKey";
+import { getOccurrenceKey } from "@/utils/getOccurrenceKey";
 import { getQuickRange } from "@/utils/getQuickRange";
 import { getResultsSummary } from "@/utils/getResultsSummary";
 import { groupEventsByDay } from "@/utils/groupEventsByDay";
@@ -46,14 +46,24 @@ export function AgendaBoard({ events, generatedAt }: AgendaBoardProps) {
   );
 
   // Los guardados que las fuentes ya no traen siguen en la agenda hasta que pasan.
-  const allEvents = useMemo(() => mergeSavedEvents(events, saved), [events, saved]);
-  const savedCount = useMemo(() => saved.filter((event) => !isEventFinished(event, now)).length, [saved, now]);
+  const allEvents = useMemo(() => mergeSavedEvents(events, saved.map(({ event }) => event)), [events, saved]);
+  const savedCount = useMemo(
+    () => saved.filter(({ event, dayKey }) => dayKey >= todayKey && !isEventFinished(event, now)).length,
+    [saved, todayKey, now],
+  );
 
-  const filtered = useMemo(() => {
-    const matching = filterEvents(allEvents, filters);
-    return savedOnly ? matching.filter((event) => savedKeys.has(getEventKey(event))) : matching;
-  }, [allEvents, filters, savedOnly, savedKeys]);
-  const groups = useMemo(() => groupEventsByDay(filtered, range, now), [filtered, range, now]);
+  const filtered = useMemo(() => filterEvents(allEvents, filters), [allEvents, filters]);
+  const groups = useMemo(() => {
+    const all = groupEventsByDay(filtered, range, now);
+    if (!savedOnly) return all;
+    // Un evento de varios dias solo sale en los dias en que se guardo.
+    return all
+      .map((group) => ({
+        ...group,
+        occurrences: group.occurrences.filter(({ event, dayKey }) => savedKeys.has(getOccurrenceKey(event, dayKey))),
+      }))
+      .filter((group) => group.occurrences.length > 0);
+  }, [filtered, range, now, savedOnly, savedKeys]);
 
   const municipalities = useMemo(
     () => [...new Set(allEvents.map((event) => event.municipality).filter((name): name is string => Boolean(name)))].sort((a, b) => a.localeCompare(b, "es")),
@@ -123,7 +133,7 @@ export function AgendaBoard({ events, generatedAt }: AgendaBoardProps) {
         </div>
       ) : (
         groups.map((group) => (
-          <EventDayGroup key={group.dayKey} group={group} todayKey={todayKey} savedKeys={savedKeys} onToggleSaved={toggleSaved} />
+          <EventDayGroup key={group.dayKey} group={group} todayKey={todayKey} savedKeys={savedKeys} onToggleSaved={({ event, dayKey }) => toggleSaved(event, dayKey)} />
         ))
       )}
     </div>
