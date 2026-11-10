@@ -10,6 +10,7 @@ import { useNow } from "@/hooks/useNow";
 import { useSavedEvents } from "@/hooks/useSavedEvents";
 import type { AgendaEvent, DayRange } from "@/types/event";
 import { addDaysToKey } from "@/utils/addDaysToKey";
+import { buildSavedEventsIcs } from "@/utils/buildSavedEventsIcs";
 import { countActiveFilters } from "@/utils/countActiveFilters";
 import { filterEvents, NO_EVENT_FILTERS } from "@/utils/filterEvents";
 import { getOccurrenceKey } from "@/utils/getOccurrenceKey";
@@ -47,10 +48,11 @@ export function AgendaBoard({ events, generatedAt }: AgendaBoardProps) {
 
   // Los guardados que las fuentes ya no traen siguen en la agenda hasta que pasan.
   const allEvents = useMemo(() => mergeSavedEvents(events, saved.map(({ event }) => event)), [events, saved]);
-  const savedCount = useMemo(
-    () => saved.filter(({ event, dayKey }) => dayKey >= todayKey && !isEventFinished(event, now)).length,
+  const upcomingSaved = useMemo(
+    () => saved.filter(({ event, dayKey }) => dayKey >= todayKey && !isEventFinished(event, now)),
     [saved, todayKey, now],
   );
+  const savedCount = upcomingSaved.length;
 
   const filtered = useMemo(() => filterEvents(allEvents, filters), [allEvents, filters]);
   const groups = useMemo(() => {
@@ -88,6 +90,17 @@ export function AgendaBoard({ events, generatedAt }: AgendaBoardProps) {
     setCustomRange({ from: todayKey, to: maxDay });
   };
 
+  /** Descarga los guardados como `.ics`: el telefono o el computador lo abre con su calendario. */
+  const exportSaved = () => {
+    const file = new Blob([buildSavedEventsIcs(upcomingSaved, Date.now())], { type: "text/calendar;charset=utf-8" });
+    const href = URL.createObjectURL(file);
+    const link = document.createElement("a");
+    link.href = href;
+    link.download = "agenda-guardada.ics";
+    link.click();
+    URL.revokeObjectURL(href);
+  };
+
   const setDates = (next: DayRange) => {
     setMode("custom");
     setCustomRange(next);
@@ -113,7 +126,10 @@ export function AgendaBoard({ events, generatedAt }: AgendaBoardProps) {
         <p className={styles.summary} aria-live="polite">
           {getResultsSummary(total, groups.length)}
         </p>
-        <SavedToggle count={savedCount} active={savedOnly} onToggle={toggleSavedOnly} />
+        <div className={styles.savedActions}>
+          {savedCount > 0 && <ActionButton onClick={exportSaved}>Al calendario</ActionButton>}
+          <SavedToggle count={savedCount} active={savedOnly} onToggle={toggleSavedOnly} />
+        </div>
       </div>
 
       {total === 0 ? (
