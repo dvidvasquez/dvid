@@ -4,15 +4,20 @@ import { useMemo, useState } from "react";
 import { ActionButton } from "@/components/commons/ActionButton";
 import { AgendaFilters, type RangeMode } from "@/components/commons/AgendaFilters";
 import { EventDayGroup } from "@/components/commons/EventDayGroup";
+import { SavedToggle } from "@/components/commons/SavedToggle";
 import { EVENTS_WINDOW_DAYS } from "@/constants/events";
 import { useNow } from "@/hooks/useNow";
+import { useSavedEvents } from "@/hooks/useSavedEvents";
 import type { AgendaEvent, DayRange } from "@/types/event";
 import { addDaysToKey } from "@/utils/addDaysToKey";
 import { countActiveFilters } from "@/utils/countActiveFilters";
 import { filterEvents, NO_EVENT_FILTERS } from "@/utils/filterEvents";
+import { getEventKey } from "@/utils/getEventKey";
 import { getQuickRange } from "@/utils/getQuickRange";
 import { getResultsSummary } from "@/utils/getResultsSummary";
 import { groupEventsByDay } from "@/utils/groupEventsByDay";
+import { isEventFinished } from "@/utils/isEventFinished";
+import { mergeSavedEvents } from "@/utils/mergeSavedEvents";
 import { toDayKey } from "@/utils/toDayKey";
 import styles from "./AgendaBoard.module.scss";
 
@@ -26,6 +31,10 @@ export function AgendaBoard({ events, generatedAt }: AgendaBoardProps) {
   const [mode, setMode] = useState<RangeMode>("week");
   const [customRange, setCustomRange] = useState<DayRange>({ from: "", to: "" });
   const [filters, setFilters] = useState(NO_EVENT_FILTERS);
+  /** Al ver solo los guardados se abre todo el rango; aqui queda el rango anterior para volver a el. */
+  const [beforeSaved, setBeforeSaved] = useState<{ mode: RangeMode; customRange: DayRange } | null>(null);
+  const savedOnly = beforeSaved !== null;
+  const { saved, savedKeys, toggleSaved } = useSavedEvents();
 
   // `useNow` vale 0 hasta que el navegador lo lee: asi el HTML del servidor y la primera pintura coinciden.
   const now = useNow(60_000) || Date.parse(generatedAt);
@@ -36,17 +45,38 @@ export function AgendaBoard({ events, generatedAt }: AgendaBoardProps) {
     [mode, customRange, todayKey],
   );
 
-  const filtered = useMemo(() => filterEvents(events, filters), [events, filters]);
+  // Los guardados que las fuentes ya no traen siguen en la agenda hasta que pasan.
+  const allEvents = useMemo(() => mergeSavedEvents(events, saved), [events, saved]);
+  const savedCount = useMemo(() => saved.filter((event) => !isEventFinished(event, now)).length, [saved, now]);
+
+  const filtered = useMemo(() => {
+    const matching = filterEvents(allEvents, filters);
+    return savedOnly ? matching.filter((event) => savedKeys.has(getEventKey(event))) : matching;
+  }, [allEvents, filters, savedOnly, savedKeys]);
   const groups = useMemo(() => groupEventsByDay(filtered, range, now), [filtered, range, now]);
 
   const municipalities = useMemo(
-    () => [...new Set(events.map((event) => event.municipality).filter((name): name is string => Boolean(name)))].sort((a, b) => a.localeCompare(b, "es")),
-    [events],
+    () => [...new Set(allEvents.map((event) => event.municipality).filter((name): name is string => Boolean(name)))].sort((a, b) => a.localeCompare(b, "es")),
+    [allEvents],
   );
-  const categories = useMemo(() => [...new Set(events.map((event) => event.category))], [events]);
+  const categories = useMemo(() => [...new Set(allEvents.map((event) => event.category))], [allEvents]);
 
   const total = groups.reduce((sum, group) => sum + group.occurrences.length, 0);
   const hasFilters = countActiveFilters(filters) > 0;
+
+  const maxDay = addDaysToKey(todayKey, EVENTS_WINDOW_DAYS);
+
+  const toggleSavedOnly = () => {
+    if (beforeSaved) {
+      setMode(beforeSaved.mode);
+      setCustomRange(beforeSaved.customRange);
+      setBeforeSaved(null);
+      return;
+    }
+    setBeforeSaved({ mode, customRange });
+    setMode("custom");
+    setCustomRange({ from: todayKey, to: maxDay });
+  };
 
   const setDates = (next: DayRange) => {
     setMode("custom");
@@ -59,7 +89,7 @@ export function AgendaBoard({ events, generatedAt }: AgendaBoardProps) {
         mode={mode}
         range={range}
         minDay={todayKey}
-        maxDay={addDaysToKey(todayKey, EVENTS_WINDOW_DAYS)}
+        maxDay={maxDay}
         filters={filters}
         municipalities={municipalities}
         categories={categories}
@@ -69,20 +99,32 @@ export function AgendaBoard({ events, generatedAt }: AgendaBoardProps) {
         onFiltersChange={setFilters}
       />
 
-      <p className={styles.summary} aria-live="polite">
-        {getResultsSummary(total, groups.length)}
-      </p>
+      <div className={styles.toolbar}>
+        <p className={styles.summary} aria-live="polite">
+          {getResultsSummary(total, groups.length)}
+        </p>
+        <SavedToggle count={savedCount} active={savedOnly} onToggle={toggleSavedOnly} />
+      </div>
 
       {total === 0 ? (
         <div className={styles.empty}>
-          <p>No hay eventos en estas fechas{hasFilters ? " con esos filtros" : ""}.</p>
+          {savedOnly && savedCount === 0 ? (
+            <p>Aún no has guardado eventos. Toca el marcador de un evento para guardarlo.</p>
+          ) : (
+            <p>
+              No hay eventos{savedOnly ? " guardados" : ""} en estas fechas{hasFilters ? " con esos filtros" : ""}.
+            </p>
+          )}
           <div className={styles.emptyActions}>
-            {mode !== "month" && <ActionButton onClick={() => setMode("month")}>Ver 30 días</ActionButton>}
+            {savedOnly && <ActionButton onClick={toggleSavedOnly}>Ver todos los eventos</ActionButton>}
+            {!savedOnly && mode !== "month" && <ActionButton onClick={() => setMode("month")}>Ver 30 días</ActionButton>}
             {hasFilters && <ActionButton onClick={() => setFilters(NO_EVENT_FILTERS)}>Quitar filtros</ActionButton>}
           </div>
         </div>
       ) : (
-        groups.map((group) => <EventDayGroup key={group.dayKey} group={group} todayKey={todayKey} />)
+        groups.map((group) => (
+          <EventDayGroup key={group.dayKey} group={group} todayKey={todayKey} savedKeys={savedKeys} onToggleSaved={toggleSaved} />
+        ))
       )}
     </div>
   );

@@ -10,6 +10,31 @@ $category-colors: (
   "otro": var(--brand-ash),
 );
 
+.wrap {
+  position: relative;
+  height: 100%;
+}
+
+/* Marcador para guardar: flota sobre la esquina de la tarjeta, fuera del enlace. */
+.wrap .save {
+  position: absolute;
+  top: 0.625rem;
+  right: 0.625rem;
+  z-index: 1;
+  color: var(--text-secondary);
+
+  &[aria-pressed="true"] {
+    border-color: var(--brand-red);
+    background: var(--brand-red);
+    color: var(--brand-white);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--brand-red);
+    outline-offset: 2px;
+  }
+}
+
 .link {
   display: block;
   height: 100%;
@@ -34,6 +59,10 @@ $category-colors: (
   .link:hover & {
     transform: translateY(-2px);
     border-color: color-mix(in srgb, var(--brand-red) 45%, var(--border-subtle));
+  }
+
+  .wrap[data-saved="true"] & {
+    border-color: color-mix(in srgb, var(--brand-red) 70%, var(--border-subtle));
   }
 }
 
@@ -65,6 +94,9 @@ $category-colors: (
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
+  /* Espacio para el marcador de guardar. */
+  min-height: 1.75rem;
+  padding-right: 2.25rem;
 }
 
 .time {
