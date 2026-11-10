@@ -1,7 +1,7 @@
 import { CoverImage } from "@/components/commons/CoverImage";
 import { IconButton } from "@/components/commons/IconButton";
 import { EVENT_CATEGORIES, EVENT_DEFAULT_COVER } from "@/constants/events";
-import type { AgendaEvent, EventOccurrence } from "@/types/event";
+import type { EventOccurrence } from "@/types/event";
 import { formatEventPrice } from "@/utils/formatEventPrice";
 import { formatEventTime } from "@/utils/formatEventTime";
 import { getEventCover } from "@/utils/getEventCover";
@@ -13,7 +13,8 @@ const MEDIA_SIZES = "(min-width: 48rem) 9rem, 6.5rem";
 type EventCardProps = {
   occurrence: EventOccurrence;
   saved: boolean;
-  onToggleSaved: (event: AgendaEvent) => void;
+  /** Guarda o quita este evento solo en el dia de la tarjeta. */
+  onToggleSaved: (occurrence: EventOccurrence) => void;
 };
 
 export function EventCard({ occurrence, saved, onToggleSaved }: EventCardProps) {
@@ -29,7 +30,7 @@ export function EventCard({ occurrence, saved, onToggleSaved }: EventCardProps) 
         size="sm"
         className={styles.save}
         aria-pressed={saved}
-        onClick={() => onToggleSaved(event)}
+        onClick={() => onToggleSaved(occurrence)}
       >
         <svg
           viewBox="0 0 24 24"

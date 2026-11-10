@@ -1,7 +1,9 @@
 import { EVENT_CATEGORIES, MAX_SAVED_EVENTS } from "@/constants/events";
-import type { AgendaEvent, EventCategory } from "@/types/event";
+import type { AgendaEvent, EventCategory, SavedEvent } from "@/types/event";
+import { toDayKey } from "./toDayKey";
 import { toSafeHttpsUrl } from "./toSafeHttpsUrl";
 
+const DAY_KEY = /^\d{4}-\d{2}-\d{2}$/;
 const CATEGORY_IDS: ReadonlySet<string> = new Set(EVENT_CATEGORIES.map(({ id }) => id));
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -45,10 +47,26 @@ function toEvent(raw: unknown): AgendaEvent | null {
 }
 
 /**
- * Los eventos guardados en el navegador (texto JSON) -> lista de eventos. Lo que no sea una lista o
- * no parezca un evento se descarta: el almacenamiento puede estar vacio, viejo o editado a mano.
+ * Un guardado es `{ event, dayKey }`. La primera version guardaba el evento suelto, sin dia: esos
+ * se leen como guardados en su dia de inicio.
  */
-export function parseSavedEvents(stored: string): AgendaEvent[] {
+function toSaved(raw: unknown): SavedEvent | null {
+  if (!isRecord(raw)) return null;
+
+  if (!("event" in raw)) {
+    const event = toEvent(raw);
+    return event ? { event, dayKey: toDayKey(event.start) } : null;
+  }
+  const event = toEvent(raw.event);
+  const dayKey = text(raw.dayKey);
+  return event && DAY_KEY.test(dayKey) ? { event, dayKey } : null;
+}
+
+/**
+ * Los eventos guardados en el navegador (texto JSON) -> lista de guardados. Lo que no sea una lista
+ * o no parezca un guardado se descarta: el almacenamiento puede estar vacio, viejo o editado a mano.
+ */
+export function parseSavedEvents(stored: string): SavedEvent[] {
   let parsed: unknown;
   try {
     parsed = JSON.parse(stored);
@@ -58,7 +76,7 @@ export function parseSavedEvents(stored: string): AgendaEvent[] {
   if (!Array.isArray(parsed)) return [];
 
   return parsed
-    .map(toEvent)
-    .filter((event): event is AgendaEvent => event !== null)
+    .map(toSaved)
+    .filter((saved): saved is SavedEvent => saved !== null)
     .slice(0, MAX_SAVED_EVENTS);
 }
