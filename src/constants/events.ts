@@ -16,6 +16,12 @@ export const MAX_EVENT_SPAN_DAYS = 14;
 
 export const EVENT_EXCERPT_LENGTH = 200;
 
+/** Clave de `localStorage` con los eventos guardados (una lista JSON de eventos). */
+export const SAVED_EVENTS_STORAGE_KEY = "agenda:guardados";
+
+/** Tope de eventos guardados: el almacenamiento del navegador es pequeno. */
+export const MAX_SAVED_EVENTS = 200;
+
 /** Portada cuando el evento no trae imagen (o no carga). */
 export const EVENT_DEFAULT_COVER = "/defaults/events.svg";
 

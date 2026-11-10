@@ -1,15 +1,19 @@
 import { EventCard } from "@/components/commons/EventCard";
-import type { EventDayGroup as EventDayGroupData } from "@/types/event";
+import type { AgendaEvent, EventDayGroup as EventDayGroupData } from "@/types/event";
+import { getEventKey } from "@/utils/getEventKey";
 import { formatDayHeading } from "@/utils/formatDayHeading";
 import styles from "./EventDayGroup.module.scss";
 
 type EventDayGroupProps = {
   group: EventDayGroupData;
   todayKey: string;
+  /** Claves (`getEventKey`) de los eventos guardados. */
+  savedKeys: ReadonlySet<string>;
+  onToggleSaved: (event: AgendaEvent) => void;
 };
 
 /** Un dia de la agenda: titulo fijo con la fecha y la cantidad, y sus eventos. */
-export function EventDayGroup({ group, todayKey }: EventDayGroupProps) {
+export function EventDayGroup({ group, todayKey, savedKeys, onToggleSaved }: EventDayGroupProps) {
   const isToday = group.dayKey === todayKey;
 
   return (
@@ -21,7 +25,7 @@ export function EventDayGroup({ group, todayKey }: EventDayGroupProps) {
       <ul className={styles.list}>
         {group.occurrences.map((occurrence) => (
           <li key={`${occurrence.event.id}-${occurrence.dayKey}`}>
-            <EventCard occurrence={occurrence} />
+            <EventCard occurrence={occurrence} saved={savedKeys.has(getEventKey(occurrence.event))} onToggleSaved={onToggleSaved} />
           </li>
         ))}
       </ul>

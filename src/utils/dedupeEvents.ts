@@ -1,11 +1,5 @@
 import type { AgendaEvent } from "@/types/event";
-import { foldText } from "./foldText";
-import { toDayKey } from "./toDayKey";
-
-function getKey(event: AgendaEvent): string {
-  const title = foldText(event.title).replace(/[^a-z0-9]+/g, " ").trim();
-  return `${title}|${toDayKey(event.start)}`;
-}
+import { getEventKey } from "./getEventKey";
 
 /** De dos fuentes distintas para el mismo evento conviene la que trae imagen; luego la mas completa. */
 function pickBest(current: AgendaEvent, candidate: AgendaEvent): AgendaEvent {
@@ -17,7 +11,7 @@ function pickBest(current: AgendaEvent, candidate: AgendaEvent): AgendaEvent {
 export function dedupeEvents(events: AgendaEvent[]): AgendaEvent[] {
   const best = new Map<string, AgendaEvent>();
   for (const event of events) {
-    const key = getKey(event);
+    const key = getEventKey(event);
     const existing = best.get(key);
     best.set(key, existing ? pickBest(existing, event) : event);
   }
