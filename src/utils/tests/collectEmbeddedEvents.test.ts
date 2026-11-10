@@ -100,3 +100,15 @@ test("no se cuelga con JSON muy profundo", () => {
   for (let i = 0; i < 100; i += 1) deep = { child: deep };
   assert.deepEqual(collectEmbeddedEvents([deep]), []);
 });
+
+test("abre los textos que a su vez son JSON (calendario de Drupal)", () => {
+  const options = JSON.stringify({ initialView: "dayGridMonth", events: [{ title: "Orquesta Sinfónica EAFIT", start: "2026-11-18T19:00:00", end: "2026-11-18T21:00:00", url: "/eventos/sinfonica" }] });
+  const data = { fullCalendarView: [{ startField: "field_fecha", calendar_options: options }] };
+  assert.deepEqual(collectEmbeddedEvents([data]), [
+    { "@type": "Event", name: "Orquesta Sinfónica EAFIT", startDate: "2026-11-18T19:00:00", endDate: "2026-11-18T21:00:00", url: "/eventos/sinfonica" },
+  ]);
+});
+
+test("un texto que parece JSON pero no lo es se ignora", () => {
+  assert.deepEqual(collectEmbeddedEvents([{ nota: "{esto no es json, solo llaves y texto largo}" }]), []);
+});

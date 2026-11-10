@@ -21,6 +21,7 @@ import { extractTimeCards } from "@/utils/extractTimeCards";
 import { getEventDayKeys } from "@/utils/getEventDayKeys";
 import { icsToAgendaEvent } from "@/utils/icsToAgendaEvent";
 import { isEventFinished } from "@/utils/isEventFinished";
+import { isInAgendaZone } from "@/utils/isInAgendaZone";
 import { jsonLdToAgendaEvent } from "@/utils/jsonLdToAgendaEvent";
 import { parseIcs } from "@/utils/parseIcs";
 import { toDayKey } from "@/utils/toDayKey";
@@ -244,11 +245,16 @@ async function loadSource(
   const notes = attempts.flatMap(({ loaded }) => ("note" in loaded && loaded.note ? [loaded.note] : []));
   const winner = attempts.find(({ loaded }) => hasEvents(loaded));
   if (winner && "events" in winner.loaded) {
-    const events = winner.loaded.events.filter((event) => isInWindow(event, window, nowMs));
+    const upcoming = winner.loaded.events.filter((event) => isInWindow(event, window, nowMs));
+    // Lo que pasa en otra ciudad (Bogotá, Cali...) no entra en la agenda.
+    const events = upcoming.filter((event) => isInAgendaZone(event.municipality));
+    const outOfZone = upcoming.length - events.length;
+    if (outOfZone > 0) notes.push(`${outOfZone} de otra ciudad ${outOfZone === 1 ? "descartado" : "descartados"}`);
+
     const status: EventSourceStatus = {
       source,
-      status: "ok",
-      via: winner.via,
+      status: events.length > 0 ? "ok" : "sin-eventos",
+      via: events.length > 0 ? winner.via : null,
       eventCount: events.length,
       withImageCount: events.filter((event) => event.image).length,
       message: notes.length > 0 ? notes.join(" · ") : undefined,

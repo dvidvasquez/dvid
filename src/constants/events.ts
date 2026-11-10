@@ -16,6 +16,22 @@ export const MAX_EVENT_SPAN_DAYS = 14;
 
 export const EVENT_EXCERPT_LENGTH = 200;
 
+/** Municipios que cubre la agenda: Valle de Aburrá y los cercanos del Oriente y el Occidente. Sin tildes ni mayusculas. */
+export const AGENDA_ZONE_PLACES: ReadonlyArray<string> = [
+  "medellin", "bello", "itagui", "envigado", "sabaneta", "la estrella", "caldas", "copacabana", "girardota", "barbosa",
+  "rionegro", "la ceja", "el retiro", "guarne", "marinilla", "carmen de viboral", "el santuario", "guatape", "el penol",
+  "san vicente", "santa fe de antioquia", "san jeronimo", "sopetran", "san pedro de los milagros", "santa elena", "antioquia",
+];
+
+/** Otras ciudades con muchos eventos en las mismas fuentes: lo que pase alla no entra en la agenda. Sin tildes ni mayusculas. */
+export const OUT_OF_ZONE_PLACES: ReadonlyArray<string> = [
+  "bogota", "cali", "barranquilla", "cartagena", "bucaramanga", "pereira", "manizales", "armenia", "santa marta", "cucuta",
+  "ibague", "villavicencio", "neiva", "pasto", "popayan", "tunja", "monteria", "valledupar", "sincelejo", "riohacha",
+  "soacha", "chia", "zipaquira", "palmira", "floridablanca", "san andres", "cundinamarca", "valle del cauca", "atlantico",
+  "bolivar", "santander", "risaralda", "quindio", "tolima", "boyaca", "narino", "huila", "meta", "magdalena",
+  "miami", "new york", "madrid", "barcelona", "ciudad de mexico", "buenos aires", "lima", "quito", "panama", "santiago de chile",
+];
+
 /** Clave de `localStorage` con los eventos guardados (una lista JSON de eventos). */
 export const SAVED_EVENTS_STORAGE_KEY = "agenda:guardados";
 

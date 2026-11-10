@@ -8,6 +8,10 @@ const MAX_DEPTH = 24;
 const MAX_VISITED = 200_000;
 const MAX_EVENTS = 500;
 const MAX_TITLE_LENGTH = 300;
+/** Un texto que es JSON (Drupal guarda asi las opciones de su calendario) se abre si no es enorme. */
+const MIN_JSON_TEXT = 20;
+const MAX_JSON_TEXT = 2_000_000;
+const JSON_TEXT = /^\s*[[{]/;
 
 // Nombres de campo ya normalizados (minusculas y sin guiones ni guiones bajos): `start_date`, `startDate` y `StartDate` son lo mismo.
 const TITLE_KEYS = ["name", "title", "titulo", "nombre", "eventname", "nombreevento", "headline", "posttitle"];
@@ -190,7 +194,7 @@ function toEventNode(record: Json): JsonLdNode | null {
  * Eventos dentro de JSON embebido en una pagina (`__NEXT_DATA__`, flujo RSC, Nuxt...), donde no hay
  * un formato fijo: se busca cualquier objeto con titulo (`title`, `name`, `titulo`...) y fecha de
  * inicio (`startDate`, `fecha_inicio`, `date`...) y se devuelve como evento de schema.org. Los
- * repetidos (mismo titulo y fecha) se cuentan una vez.
+ * repetidos (mismo titulo y fecha) se cuentan una vez. Un texto que a su vez es JSON tambien se revisa.
  */
 export function collectEmbeddedEvents(values: ReadonlyArray<unknown>): JsonLdNode[] {
   const found: JsonLdNode[] = [];
@@ -203,6 +207,15 @@ export function collectEmbeddedEvents(values: ReadonlyArray<unknown>): JsonLdNod
 
     if (Array.isArray(value)) {
       for (const item of value) walk(item, depth + 1);
+      return;
+    }
+    if (typeof value === "string") {
+      if (value.length < MIN_JSON_TEXT || value.length > MAX_JSON_TEXT || !JSON_TEXT.test(value)) return;
+      try {
+        walk(JSON.parse(value), depth + 1);
+      } catch {
+        // No era JSON.
+      }
       return;
     }
     if (!isRecord(value)) return;
