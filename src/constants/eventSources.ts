@@ -58,7 +58,9 @@ const INFOLOCAL_AGENDA = "https://infolocal.comfenalcoantioquia.com/index.php/ag
  * calendario de EAFIT. Quedan fuera las que solo publican PDF, imagenes o redes sociales (casas de
  * cultura, UdeA, UNAL) y los eventos de medellin.gov.co (robots.txt no permite leerlos).
  * Las tiqueteras no ofrecen API publica: La Tiquetera se esta cerrando (migra a Ticketmaster) y
- * de Tuboleta solo se prueban los listados por recinto (no se probo tuboleta.com).
+ * los listados por recinto de Tuboleta se arman en el navegador (el HTML llega sin eventos).
+ * Tambien salieron Medellín Travel (su vista mensual responde 404) y el Jardín Botánico (su agenda
+ * llega sin eventos en el HTML).
  * Si una pagina no trae JSON-LD ni microdatos se lee el JSON embebido o las tarjetas con <time>.
  */
 export const EVENT_SOURCES: EventSource[] = [
@@ -114,13 +116,6 @@ export const EVENT_SOURCES: EventSource[] = [
     ],
   },
   {
-    // /events-calendar/ se arma con JavaScript (sin eventos); la vista mensual sale ya armada desde el servidor.
-    nombre: "Medellín Travel",
-    url: "https://www.medellin.travel/eventos/",
-    kind: "jsonld",
-    pages: [{ url: "https://www.medellin.travel/eventos/month/{month}/?lang=en", months: 3 }],
-  },
-  {
     // Teatro de la Universidad de Medellín (1.700 sillas): conciertos, stand-up y sinfónicos. Calendario con eventos en JSON.
     nombre: "Teatro Universidad de Medellín",
     url: "https://teatro.udemedellin.edu.co/eventos/",
@@ -128,16 +123,6 @@ export const EVENT_SOURCES: EventSource[] = [
     pages: [
       { url: "https://teatro.udemedellin.edu.co/eventos/" },
       { url: "https://teatro.udemedellin.edu.co/mec-category/eventos-universidad/" },
-    ],
-  },
-  {
-    // Listados por recinto de Tuboleta (Teatro Metropolitano y Comfama): todo es de Medellín. A probar, como EAFIT.
-    nombre: "Tuboleta",
-    url: "https://teatrometropolitano.checkout.tuboleta.com/list/events",
-    kind: "jsonld",
-    pages: [
-      { url: "https://teatrometropolitano.checkout.tuboleta.com/list/events" },
-      { url: "https://comfama.checkout.tuboleta.com/list/events" },
     ],
   },
   {
@@ -158,13 +143,6 @@ export const EVENT_SOURCES: EventSource[] = [
     ],
   },
   {
-    // Talleres, mercado verde y eventos en el Orquideorama. A probar: el panel dirá si trae JSON-LD.
-    nombre: "Jardín Botánico",
-    url: "https://www.botanicomedellin.org/agenda/",
-    kind: "jsonld",
-    pages: [{ url: "https://www.botanicomedellin.org/agenda/" }],
-  },
-  {
     // Noches de club en Medellín (Salón Amador, Rama Soundgarden, Ministry Club, Xero, Sonorama) y festivales. A probar.
     nombre: "Techno Airlines",
     url: "https://www.technoairlines.com/events/medellin",
@@ -172,7 +150,7 @@ export const EVENT_SOURCES: EventSource[] = [
     pages: [{ url: "https://www.technoairlines.com/events/medellin", categoryHint: "electronica" }],
   },
   {
-    // Orquesta Sinfónica, cine, teatro y exposiciones de EAFIT abiertos al público. A probar: el panel dirá si trae datos estructurados.
+    // Orquesta Sinfónica, cine, teatro y exposiciones de EAFIT abiertos al público. Calendario de Drupal: los eventos van como texto JSON en `calendar_options`.
     nombre: "EAFIT",
     url: "https://www.eafit.edu.co/calendario-eventos",
     kind: "jsonld",
