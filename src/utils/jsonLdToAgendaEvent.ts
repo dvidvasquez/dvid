@@ -120,7 +120,7 @@ export function jsonLdToAgendaEvent(raw: JsonLdNode, source: JsonLdSource, pageU
   const { venue, municipality } = readLocation(raw.location);
   const eventUrl = toUrl(raw.url, pageUrl) ?? toUrl(toList(raw.offers).find(isRecord)?.url, pageUrl);
   const url = eventUrl ?? source.url;
-  const inferred = inferEventCategory({ title, categories: readGenres(raw), description });
+  const inferred = inferEventCategory({ title, categories: readGenres(raw), description, venue });
 
   return {
     id: str(raw["@id"]) || eventUrl || `${source.nombre}|${title}|${start.iso}`,

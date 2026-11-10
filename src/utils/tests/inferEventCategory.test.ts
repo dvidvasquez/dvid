@@ -61,3 +61,33 @@ test("la descripcion afina el genero solo cuando ya es un concierto", () => {
 test("sin ninguna pista es otro", () => {
   assert.equal(inferEventCategory({ title: "Taller de cerámica" }), "otro");
 });
+
+test("reconoce mas subgeneros en el titulo", () => {
+  assert.equal(inferEventCategory({ title: "Noche de Metalcore y Deathcore" }), "metal");
+  assert.equal(inferEventCategory({ title: "Punkrock para todos" }), "punk");
+  assert.equal(inferEventCategory({ title: "Psytrance en la montaña" }), "electronica");
+  assert.equal(inferEventCategory({ title: "Drum & Bass Sessions" }), "electronica");
+  assert.equal(inferEventCategory({ title: "Stoner y psicodelia" }), "rock");
+  assert.equal(inferEventCategory({ title: "Dancehall Night" }), "urbano");
+});
+
+test("una banda o festival local conocido da el genero", () => {
+  assert.equal(inferEventCategory({ title: "Kraken: 40 años" }), "metal");
+  assert.equal(inferEventCategory({ title: "Los Suziox + invitados" }), "punk");
+  assert.equal(inferEventCategory({ title: "Festival Internacional Altavoz" }), "rock");
+  assert.equal(inferEventCategory({ title: "Feid en concierto" }), "urbano");
+});
+
+test("los nombres se buscan completos, no como trozo de palabra", () => {
+  assert.equal(inferEventCategory({ title: "Taller de feidad y sechura" }), "otro");
+});
+
+test("un sitio dedicado a un genero afina lo que quedo en musica u otro", () => {
+  assert.equal(inferEventCategory({ title: "Viernes: Line up sorpresa", venue: "Salón Amador" }), "electronica");
+  assert.equal(inferEventCategory({ title: "Concierto de aniversario", venue: "Sonorama Club" }), "electronica");
+});
+
+test("el sitio no cambia una categoria que ya es clara", () => {
+  assert.equal(inferEventCategory({ title: "Obra de teatro: Hamlet", venue: "Salón Amador" }), "teatro");
+  assert.equal(inferEventCategory({ title: "Noche de punk", venue: "Salón Amador" }), "punk");
+});

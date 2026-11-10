@@ -63,3 +63,20 @@ export const QUICK_RANGES: ReadonlyArray<{ value: QuickRangeId; label: string }>
   { value: "week", label: "7 días" },
   { value: "month", label: "30 días" },
 ];
+
+/**
+ * Pistas locales para afinar el genero cuando el titulo no lo dice: bandas, artistas y festivales
+ * (se buscan en el titulo) y sitios dedicados a un genero (se buscan en el lugar). Sin tildes ni
+ * mayusculas. Solo nombres que no se confundan con palabras corrientes.
+ */
+export const EVENT_GENRE_ARTISTS: ReadonlyArray<{ category: EventCategory; names: ReadonlyArray<string> }> = [
+  { category: "punk", names: ["peste mutantex", "los suziox", "desadaptadoz", "fertil miseria", "dexkoncierto", "la pestilencia"] },
+  { category: "metal", names: ["kraken", "tenebrarum", "reencarnacion", "athanator", "witchtrap", "parabellum", "nepentes", "thy antichrist"] },
+  { category: "rock", names: ["altavoz", "ekhymosis", "aterciopelados", "doctor krapula", "1280 almas", "diamante electrico"] },
+  { category: "electronica", names: ["vimukti", "blackdance", "baum festival", "ritvales"] },
+  { category: "urbano", names: ["feid", "karol g", "j balvin", "maluma", "ryan castro", "blessd", "arcangel", "sech"] },
+];
+
+export const EVENT_GENRE_VENUES: ReadonlyArray<{ category: EventCategory; names: ReadonlyArray<string> }> = [
+  { category: "electronica", names: ["salon amador", "rama soundgarden", "ministry club", "sonorama", "xero"] },
+];

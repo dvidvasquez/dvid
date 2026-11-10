@@ -29,7 +29,7 @@ export function icsToAgendaEvent(
   return {
     id: event.uid || url,
     title,
-    category: inferEventCategory({ title, categories: event.categories, description }),
+    category: inferEventCategory({ title, categories: event.categories, description, venue }),
     start,
     end: end && end > start ? end : null,
     allDay: event.start.dateOnly,
