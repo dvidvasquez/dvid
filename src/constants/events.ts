@@ -48,6 +48,7 @@ export const EVENT_CATEGORIES: ReadonlyArray<{ id: EventCategory; label: string 
   { id: "rock", label: "Rock" },
   { id: "electronica", label: "Electrónica" },
   { id: "urbano", label: "Urbano" },
+  { id: "skate", label: "Skate" },
   { id: "musica", label: "Música" },
   { id: "teatro", label: "Teatro" },
   { id: "feria", label: "Ferias y festivales" },
