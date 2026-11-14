@@ -4,6 +4,8 @@ export const EVENTS_TIME_ZONE = "America/Bogota";
 
 /** Colombia no tiene horario de verano: siempre es UTC-5. */
 export const EVENTS_UTC_OFFSET_MINUTES = -300;
+/** El mismo desfase como sufijo ISO 8601. */
+export const EVENTS_UTC_OFFSET = "-05:00";
 
 /** Cuantos dias hacia adelante se piden a cada fuente. */
 export const EVENTS_WINDOW_DAYS = 60;

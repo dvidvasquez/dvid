@@ -7,6 +7,13 @@ export type JsonLdPage = {
   categoryHint?: EventCategory;
   /** Cuantos meses leer cuando `url` trae `{month}`. */
   months?: number;
+  /**
+   * La pagina (un listado o un sitemap) solo enlaza a las fichas de los eventos: se siguen los
+   * enlaces del mismo sitio que contienen `contains` y se lee cada ficha, hasta `max`.
+   */
+  follow?: { contains: string; max: number };
+  /** Las fechas vienen marcadas como UTC (`Z`) pero son hora de Colombia. */
+  utcIsLocalTime?: boolean;
 };
 
 /** Por donde se leyo una fuente: API REST, exportacion iCal o datos estructurados de la pagina (JSON-LD o microdatos). */
@@ -62,6 +69,7 @@ const INFOLOCAL_AGENDA = "https://infolocal.comfenalcoantioquia.com/index.php/ag
  * los listados por recinto de Tuboleta se arman en el navegador (el HTML llega sin eventos).
  * Tambien salieron Medellín Travel (su vista mensual responde 404) y el Jardín Botánico (su agenda
  * llega sin eventos en el HTML).
+ * Eventario se probo y no sirvio: sus listados no traen datos de eventos.
  * Si una pagina no trae JSON-LD ni microdatos se lee el JSON embebido o las tarjetas con <time>.
  */
 export const EVENT_SOURCES: EventSource[] = [
@@ -107,27 +115,15 @@ export const EVENT_SOURCES: EventSource[] = [
   },
   {
     // Agenda cultural de Comfama (Bodega, Claustro, teatros, parques): ahi salen el Medellín Skate
-    // Market y sus festivales. Es un sitio Gatsby: se prueban la portada, «para esta semana» y sus
-    // `page-data.json` (los datos con que Gatsby arma cada pagina); el panel dira cuales sirven.
+    // Market y sus festivales. Los listados se arman en el navegador, pero cada ficha de evento trae
+    // JSON-LD: se siguen los enlaces a fichas de la portada y del sitemap. Marca la hora local como UTC.
     nombre: "Comfama",
     url: `${COMFAMA_AGENDA}/`,
     kind: "jsonld",
     pages: [
-      { url: `${COMFAMA_AGENDA}/` },
-      { url: `${COMFAMA_AGENDA}/eventos/para-esta-semana` },
-      { url: `${COMFAMA_AGENDA}/page-data/index/page-data.json` },
-      { url: `${COMFAMA_AGENDA}/page-data/eventos/para-esta-semana/page-data.json` },
-      { url: "https://www.comfama.com/page-data/agenda/page-data.json" },
-      { url: "https://www.comfama.com/page-data/agenda/eventos/para-esta-semana/page-data.json" },
+      { url: `${COMFAMA_AGENDA}/`, follow: { contains: "/agenda/evento/", max: 40 }, utcIsLocalTime: true },
+      { url: `${COMFAMA_AGENDA}/sitemap-0.xml`, follow: { contains: "/agenda/evento/", max: 80 }, utcIsLocalTime: true },
     ],
-  },
-  {
-    // Cartelera nacional con muchos planes de Medellín (ahi estaba el Skate Market); lo de otras
-    // ciudades lo descarta el filtro de zona. A probar: el panel dira si trae datos de eventos.
-    nombre: "Eventario",
-    url: "https://eventario.co/en/events/",
-    kind: "jsonld",
-    pages: [{ url: "https://eventario.co/en/events/" }],
   },
   {
     // Teatro Prado, Pablo Tobon, Pequeño Teatro, Casa Clown...: eventos en microdatos, 21 por pagina.
