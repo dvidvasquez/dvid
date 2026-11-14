@@ -28,6 +28,7 @@ import { jsonLdToAgendaEvent } from "@/utils/jsonLdToAgendaEvent";
 import { parseIcs } from "@/utils/parseIcs";
 import { readUtcAsLocalTime } from "@/utils/readUtcAsLocalTime";
 import { toDayKey } from "@/utils/toDayKey";
+import { toGatsbyPageDataUrl } from "@/utils/toGatsbyPageDataUrl";
 import { toSafeHttpsUrl } from "@/utils/toSafeHttpsUrl";
 import { tribeToAgendaEvent } from "@/utils/tribeToAgendaEvent";
 
@@ -173,7 +174,7 @@ type PageResult = {
 
 const HTML_ACCEPT = "text/html,application/xhtml+xml;q=0.9,*/*;q=0.5";
 /** Al seguir enlaces a fichas: cuantas se piden a la vez y cuanto tiempo se dedica como maximo. */
-const FOLLOW_BATCH_SIZE = 8;
+const FOLLOW_BATCH_SIZE = 12;
 const FOLLOW_BUDGET_MS = 25_000;
 
 /**
@@ -226,6 +227,29 @@ function shortUrl(url: string): string {
 }
 
 /**
+ * Descarga y lee una ficha. En un sitio Gatsby se prueba primero su `page-data.json` (los datos de
+ * la pagina, aunque el HTML llegue vacio) y, si no trae evento, la pagina misma.
+ */
+async function fetchFicha(
+  url: string,
+  source: Extract<EventSource, { kind: "jsonld" }>,
+  page: JsonLdPage,
+  follow: NonNullable<JsonLdPage["follow"]>,
+): Promise<{ read: PageResult; text: string } | null> {
+  const dataUrl = follow.gatsbyPrefix === undefined ? null : toGatsbyPageDataUrl(url, follow.gatsbyPrefix);
+  if (dataUrl) {
+    const data = await fetchText(dataUrl, "application/json");
+    if (data.ok) {
+      const read = readPage(data.text, source, page, url, true);
+      if (read.events.length > 0) return { read, text: "" };
+    }
+  }
+
+  const response = await fetchText(url, HTML_ACCEPT);
+  return response.ok ? { read: readPage(response.text, source, page, url, true), text: response.text } : null;
+}
+
+/**
  * Lee las fichas de evento enlazadas desde un listado o un sitemap (o las consultas compartidas de
  * un `page-data.json` de Gatsby), por tandas, hasta `max` o hasta agotar el tiempo. Las fichas
  * suelen enlazar a otros eventos: esos enlaces tambien se siguen. Una ficha que falla o no trae
@@ -250,16 +274,16 @@ async function followLinks(
     const batch = queue.splice(0, Math.min(FOLLOW_BATCH_SIZE, follow.max - followed));
     followed += batch.length;
 
-    const responses = await Promise.all(batch.map((url) => fetchText(url, HTML_ACCEPT)));
+    const responses = await Promise.all(batch.map((url) => fetchFicha(url, source, page, follow)));
     for (const [index, response] of responses.entries()) {
-      if (!response.ok) {
+      if (!response) {
         failed += 1;
         continue;
       }
       // Leer una pagina ocupa el procesador: se cede el turno para no frenar las demas fuentes.
       await new Promise((resolve) => setImmediate(resolve));
 
-      const read = readPage(response.text, source, page, batch[index], true);
+      const { read } = response;
       result.events.push(...read.events);
       result.structured += read.structured;
       if (read.events.length > 0) withEvents += 1;
