@@ -17,6 +17,7 @@ import { expandJsonLdPages } from "@/utils/expandJsonLdPages";
 import { extractEmbeddedJson } from "@/utils/extractEmbeddedJson";
 import { extractJsonLd } from "@/utils/extractJsonLd";
 import { extractLinks } from "@/utils/extractLinks";
+import { getGatsbyStaticQueryUrls } from "@/utils/getGatsbyStaticQueryUrls";
 import { extractMicrodata } from "@/utils/extractMicrodata";
 import { extractTimeCards } from "@/utils/extractTimeCards";
 import { getEventDayKeys } from "@/utils/getEventDayKeys";
@@ -161,7 +162,14 @@ const READER_NOTES: Record<PageReader, string | null> = {
   cards: "tarjetas HTML con fecha",
 };
 
-type PageResult = { events: AgendaEvent[]; structured: number; detail: string; reader: PageReader; followed: number };
+type PageResult = {
+  events: AgendaEvent[];
+  structured: number;
+  detail: string;
+  reader: PageReader;
+  /** Solo en paginas con `follow`: resumen de las fichas leidas, para el panel. */
+  followNote?: string;
+};
 
 const HTML_ACCEPT = "text/html,application/xhtml+xml;q=0.9,*/*;q=0.5";
 /** Al seguir enlaces a fichas: cuantas se piden a la vez y cuanto tiempo se dedica como maximo. */
@@ -173,7 +181,14 @@ const FOLLOW_BUDGET_MS = 25_000;
  * Primero schema.org (JSON-LD y microdatos); si no da eventos, el JSON embebido (Next.js, Nuxt...)
  * y, por ultimo, las tarjetas con `<time datetime>`.
  */
-function readPage(text: string, source: Extract<EventSource, { kind: "jsonld" }>, page: JsonLdPage, pageUrl: string): PageResult {
+function readPage(
+  text: string,
+  source: Extract<EventSource, { kind: "jsonld" }>,
+  page: JsonLdPage,
+  pageUrl: string,
+  /** Las fichas se leen por decenas: solo JSON-LD y JSON embebido, sin armar el arbol HTML. */
+  light = false,
+): PageResult {
   const pageSource = { nombre: source.nombre, url: source.url, categoryHint: page.categoryHint };
   const toEvents = (nodes: JsonLdNode[]) =>
     nodes
@@ -181,18 +196,18 @@ function readPage(text: string, source: Extract<EventSource, { kind: "jsonld" }>
       .filter((event): event is AgendaEvent => event !== null);
 
   const blocks = extractJsonLd(text);
-  const schemaNodes = [...collectJsonLdEvents(blocks), ...extractMicrodata(text)];
+  const schemaNodes = [...collectJsonLdEvents(blocks), ...(light ? [] : extractMicrodata(text))];
   const schemaEvents = toEvents(schemaNodes);
-  if (schemaEvents.length > 0) return { events: schemaEvents, structured: schemaNodes.length, detail: "", reader: "jsonld", followed: 0 };
+  if (schemaEvents.length > 0) return { events: schemaEvents, structured: schemaNodes.length, detail: "", reader: "jsonld" };
 
   const embedded = extractEmbeddedJson(text);
   const embeddedNodes = collectEmbeddedEvents(embedded.map(({ value }) => value));
   const embeddedEvents = toEvents(embeddedNodes);
   if (embeddedEvents.length > 0) {
-    return { events: embeddedEvents, structured: schemaNodes.length + embeddedNodes.length, detail: "", reader: "embedded", followed: 0 };
+    return { events: embeddedEvents, structured: schemaNodes.length + embeddedNodes.length, detail: "", reader: "embedded" };
   }
 
-  const cardNodes = extractTimeCards(text);
+  const cardNodes = light ? [] : extractTimeCards(text);
   const cardEvents = toEvents(cardNodes);
   const detail = [describeStructuredData(text, blocks), describeEmbeddedData(text, embedded)].join(", ");
   return {
@@ -200,14 +215,21 @@ function readPage(text: string, source: Extract<EventSource, { kind: "jsonld" }>
     structured: schemaNodes.length + embeddedNodes.length + cardNodes.length,
     detail,
     reader: cardEvents.length > 0 ? "cards" : "jsonld",
-    followed: 0,
   };
 }
 
+const MAX_FOLLOW_DETAIL = 320;
+
+/** Ultimos tramos de una URL, para nombrarla en el panel. */
+function shortUrl(url: string): string {
+  return url.replace(/^https?:\/\/[^/]+/, "").split("/").filter(Boolean).slice(-2).join("/") || "/";
+}
+
 /**
- * Lee las fichas de evento enlazadas desde un listado o un sitemap, por tandas, hasta `max` fichas
- * o hasta agotar el tiempo. Las fichas suelen enlazar a otros eventos: esos enlaces tambien se
- * siguen. Una ficha que falla o no trae evento se salta.
+ * Lee las fichas de evento enlazadas desde un listado o un sitemap (o las consultas compartidas de
+ * un `page-data.json` de Gatsby), por tandas, hasta `max` o hasta agotar el tiempo. Las fichas
+ * suelen enlazar a otros eventos: esos enlaces tambien se siguen. Una ficha que falla o no trae
+ * evento se salta.
  */
 async function followLinks(
   listing: string,
@@ -216,29 +238,45 @@ async function followLinks(
   follow: NonNullable<JsonLdPage["follow"]>,
 ): Promise<PageResult> {
   const deadline = Date.now() + FOLLOW_BUDGET_MS;
-  const queue = extractLinks(listing, page.url, follow.contains);
+  const queue = [...extractLinks(listing, page.url, follow.contains), ...getGatsbyStaticQueryUrls(listing, page.url)];
   const seen = new Set(queue);
-  const result: PageResult = { events: [], structured: 0, detail: `enlaces a fichas: ${queue.length}`, reader: "jsonld", followed: 0 };
+  const result: PageResult = { events: [], structured: 0, detail: "", reader: "jsonld" };
+  let followed = 0;
+  let withEvents = 0;
+  let failed = 0;
+  const emptyDetails: string[] = [];
 
-  while (queue.length > 0 && result.followed < follow.max && Date.now() < deadline) {
-    const batch = queue.splice(0, Math.min(FOLLOW_BATCH_SIZE, follow.max - result.followed));
-    result.followed += batch.length;
+  while (queue.length > 0 && followed < follow.max && Date.now() < deadline) {
+    const batch = queue.splice(0, Math.min(FOLLOW_BATCH_SIZE, follow.max - followed));
+    followed += batch.length;
 
     const responses = await Promise.all(batch.map((url) => fetchText(url, HTML_ACCEPT)));
-    responses.forEach((response, index) => {
-      if (!response.ok) return;
+    for (const [index, response] of responses.entries()) {
+      if (!response.ok) {
+        failed += 1;
+        continue;
+      }
+      // Leer una pagina ocupa el procesador: se cede el turno para no frenar las demas fuentes.
+      await new Promise((resolve) => setImmediate(resolve));
 
-      const read = readPage(response.text, source, page, batch[index]);
+      const read = readPage(response.text, source, page, batch[index], true);
       result.events.push(...read.events);
       result.structured += read.structured;
+      if (read.events.length > 0) withEvents += 1;
+      else if (emptyDetails.length < 2) emptyDetails.push(`${shortUrl(batch[index])}: ${read.detail}`);
+
       for (const link of extractLinks(response.text, batch[index], follow.contains)) {
         if (!seen.has(link)) {
           seen.add(link);
           queue.push(link);
         }
       }
-    });
+    }
   }
+
+  const summary = `${shortUrl(page.url)}: ${followed} de ${seen.size} fichas leídas, ${withEvents} con evento${failed > 0 ? `, ${failed} fallaron` : ""}`;
+  result.detail = `enlaces a fichas: ${seen.size}`;
+  result.followNote = withEvents === 0 && emptyDetails.length > 0 ? `${summary} (${emptyDetails.join(" · ").slice(0, MAX_FOLLOW_DETAIL)})` : summary;
   return result;
 }
 
@@ -268,8 +306,7 @@ async function loadJsonLd(source: Extract<EventSource, { kind: "jsonld" }>, now:
   fallbackReaders.delete(null);
   if (fallbackReaders.size > 0) notes.push(`Eventos leídos de ${[...fallbackReaders].join(" y ")}`);
 
-  const followed = loaded.reduce((total, page) => total + page.followed, 0);
-  if (followed > 0) notes.push(`${followed} ${followed === 1 ? "ficha leída" : "fichas leídas"}`);
+  notes.push(...loaded.flatMap((page) => (page.followNote ? [page.followNote] : [])));
 
   if (events.length === 0 && loaded.every((page) => page.structured === 0)) {
     const details = [...new Set(loaded.map((page) => page.detail))].join(" · ");

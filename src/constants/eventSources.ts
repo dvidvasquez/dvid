@@ -121,8 +121,15 @@ export const EVENT_SOURCES: EventSource[] = [
     url: `${COMFAMA_AGENDA}/`,
     kind: "jsonld",
     pages: [
-      { url: `${COMFAMA_AGENDA}/`, follow: { contains: "/agenda/evento/", max: 40 }, utcIsLocalTime: true },
-      { url: `${COMFAMA_AGENDA}/sitemap-0.xml`, follow: { contains: "/agenda/evento/", max: 80 }, utcIsLocalTime: true },
+      { url: `${COMFAMA_AGENDA}/`, follow: { contains: "/agenda/evento/", max: 60 }, utcIsLocalTime: true },
+      { url: `${COMFAMA_AGENDA}/sitemap-0.xml`, follow: { contains: "/agenda/evento/", max: 40 }, utcIsLocalTime: true },
+      // Los datos con que Gatsby arma los listados: se leen sus consultas compartidas.
+      { url: `${COMFAMA_AGENDA}/page-data/index/page-data.json`, follow: { contains: "/page-data/sq/d/", max: 30 }, utcIsLocalTime: true },
+      {
+        url: `${COMFAMA_AGENDA}/page-data/eventos/para-esta-semana/page-data.json`,
+        follow: { contains: "/page-data/sq/d/", max: 30 },
+        utcIsLocalTime: true,
+      },
     ],
   },
   {
