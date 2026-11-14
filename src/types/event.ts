@@ -4,6 +4,7 @@ export type EventCategory =
   | "rock"
   | "electronica"
   | "urbano"
+  | "skate"
   | "musica"
   | "teatro"
   | "feria"

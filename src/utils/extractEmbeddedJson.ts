@@ -8,6 +8,7 @@ const FLIGHT_PUSH = /^\s*(?:self|window)\.__next_f\.push\(/;
 /** Cada linea del flujo RSC de Next.js es `id:valor`; solo interesan las de JSON (`{` o `[`). */
 const FLIGHT_ROW = /^[0-9a-zA-Z]+:([[{].*)$/;
 
+const RAW_JSON = /^\s*[[{]/;
 const MAX_SCRIPT_CHARS = 6_000_000;
 const MAX_VALUES = 24;
 const NUXT_DATA_ID = "__NUXT_DATA__";
@@ -80,9 +81,15 @@ function reviveNuxtData(flat: unknown[]): unknown {
  * JSON que las paginas modernas dejan dentro del HTML: `__NEXT_DATA__` de Next.js (Pages Router), el
  * flujo RSC del App Router, `__NUXT_DATA__` de Nuxt 3 y cualquier `<script type="application/json">`.
  * Los eventos de sitios armados con JavaScript suelen estar ahi aunque no tengan JSON-LD.
- * Lo que no sea JSON valido se ignora.
+ * Si la respuesta entera es JSON (no HTML) se devuelve tal cual. Lo que no sea JSON valido se ignora.
  */
 export function extractEmbeddedJson(html: string): EmbeddedJson[] {
+  // Una respuesta que ya es JSON (por ejemplo el `page-data.json` de un sitio Gatsby) se usa entera.
+  if (RAW_JSON.test(html)) {
+    const value = html.length <= MAX_SCRIPT_CHARS ? parseJson(html) : undefined;
+    return value === undefined ? [] : [{ label: "respuesta JSON", value }];
+  }
+
   const found: EmbeddedJson[] = [];
   const flightChunks: string[] = [];
 

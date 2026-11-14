@@ -91,3 +91,25 @@ test("el sitio no cambia una categoria que ya es clara", () => {
   assert.equal(inferEventCategory({ title: "Obra de teatro: Hamlet", venue: "Salón Amador" }), "teatro");
   assert.equal(inferEventCategory({ title: "Noche de punk", venue: "Salón Amador" }), "punk");
 });
+
+test("reconoce los eventos de skateboarding", () => {
+  assert.equal(inferEventCategory({ title: "Medellín Skate Market 2026" }), "skate");
+  assert.equal(inferEventCategory({ title: "Go Skateboarding Day" }), "skate");
+  assert.equal(inferEventCategory({ title: "Torneo en el Skatepark de Ciudad del Río" }), "skate");
+  assert.equal(inferEventCategory({ title: "Clases de patineta para niños" }), "skate");
+  assert.equal(inferEventCategory({ title: "Feria de emprendimiento", categories: ["Skateboarding"] }), "skate");
+});
+
+test("el skate gana a la musica y a la feria del mismo titulo", () => {
+  assert.equal(inferEventCategory({ title: "Festival de skate y punk" }), "skate");
+  assert.equal(inferEventCategory({ title: "Feria skater del barrio" }), "skate");
+});
+
+test("patinaje no es skateboarding", () => {
+  assert.equal(inferEventCategory({ title: "Festival Nacional de Patinaje Artístico" }), "feria");
+  assert.equal(inferEventCategory({ title: "Grand Prix de patinaje de velocidad" }), "otro");
+});
+
+test("si el titulo no dice nada, el skate en la descripcion cuenta", () => {
+  assert.equal(inferEventCategory({ title: "Encuentro de fin de año", description: "Una tarde de skateboarding, arte y marcas locales." }), "skate");
+});

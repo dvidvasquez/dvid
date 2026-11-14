@@ -14,6 +14,8 @@ const GENRES: ReadonlyArray<readonly [EventCategory, RegExp]> = [
   ["urbano", /\b(reggaeton|regueton|trap|hip ?hop|rap|urban[oa]|dembow|perreo|drill|freestyle|dancehall|afrobeats?|rkt)\b/],
 ];
 
+/** Skateboarding: patineta, no patinaje sobre ruedas ni sobre hielo. */
+const SKATE = /\b(skate|skater|skaters|skateboard\w*|skatepark\w*|sk8|patineta\w*|longboard\w*)\b/;
 const TEATRO = /\b(teatro|theat(er|re)|obra|comedia|stand ?up|monologo|danza|ballet|opera|circo|titeres|performance)\b/;
 const MUSICA = /\b(concert[so]?|concierto|music|musica|musical|symphony|sinfonic[ao]|orquesta|jazz|salsa|bolero|tango|vallenato|cumbia|recital)\b/;
 const FERIA = /\b(feria|festival|fair|market|mercado|gastronom\w*|food|empanada|flores|carnaval|bazar|fiesta|desfile|parade|convencion|cosplay)\b/;
@@ -35,12 +37,15 @@ function findHint(text: string, hints: ReadonlyArray<{ category: EventCategory; 
 function inferFromText(name: string, labels: string, description: string): EventCategory {
   const head = `${name} ${labels}`;
 
+  // Va primero: un mercado o torneo de skate con musica sigue siendo un evento de skate.
+  if (SKATE.test(head)) return "skate";
   const genre = findGenre(head) ?? findHint(name, EVENT_GENRE_ARTISTS);
   if (genre) return genre;
   if (TEATRO.test(head)) return "teatro";
   if (FERIA.test(name) && !MUSICA.test(name)) return "feria";
   if (MUSICA.test(head)) return findGenre(foldText(description).slice(0, DESCRIPTION_CHARS)) ?? "musica";
   if (FERIA.test(labels)) return "feria";
+  if (SKATE.test(foldText(description).slice(0, DESCRIPTION_CHARS))) return "skate";
   return "otro";
 }
 

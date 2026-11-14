@@ -46,6 +46,7 @@ export type EventSource =
 const SONGKICK_MEDELLIN = "https://www.songkick.com/metro-areas/28331-colombia-medellin";
 const EVENTBRITE_MEDELLIN = "https://www.eventbrite.com/d/colombia--medell%C3%ADn";
 const ALLEVENTS_MEDELLIN = "https://allevents.in/medellin";
+const COMFAMA_AGENDA = "https://www.comfama.com/agenda";
 const INFOLOCAL_AGENDA = "https://infolocal.comfenalcoantioquia.com/index.php/agenda";
 
 /**
@@ -103,6 +104,30 @@ export const EVENT_SOURCES: EventSource[] = [
     url: "https://descubremedellin.co/es/agenda/",
     kind: "jsonld",
     pages: [{ url: "https://descubremedellin.co/es/agenda/" }],
+  },
+  {
+    // Agenda cultural de Comfama (Bodega, Claustro, teatros, parques): ahi salen el Medellín Skate
+    // Market y sus festivales. Es un sitio Gatsby: se prueban la portada, «para esta semana» y sus
+    // `page-data.json` (los datos con que Gatsby arma cada pagina); el panel dira cuales sirven.
+    nombre: "Comfama",
+    url: `${COMFAMA_AGENDA}/`,
+    kind: "jsonld",
+    pages: [
+      { url: `${COMFAMA_AGENDA}/` },
+      { url: `${COMFAMA_AGENDA}/eventos/para-esta-semana` },
+      { url: `${COMFAMA_AGENDA}/page-data/index/page-data.json` },
+      { url: `${COMFAMA_AGENDA}/page-data/eventos/para-esta-semana/page-data.json` },
+      { url: "https://www.comfama.com/page-data/agenda/page-data.json" },
+      { url: "https://www.comfama.com/page-data/agenda/eventos/para-esta-semana/page-data.json" },
+    ],
+  },
+  {
+    // Cartelera nacional con muchos planes de Medellín (ahi estaba el Skate Market); lo de otras
+    // ciudades lo descarta el filtro de zona. A probar: el panel dira si trae datos de eventos.
+    nombre: "Eventario",
+    url: "https://eventario.co/en/events/",
+    kind: "jsonld",
+    pages: [{ url: "https://eventario.co/en/events/" }],
   },
   {
     // Teatro Prado, Pablo Tobon, Pequeño Teatro, Casa Clown...: eventos en microdatos, 21 por pagina.

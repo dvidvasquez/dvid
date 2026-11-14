@@ -64,3 +64,12 @@ test("Nuxt: sigue las referencias Reactive y no se cuelga con ciclos", () => {
 test("una pagina sin JSON embebido da una lista vacia", () => {
   assert.deepEqual(extractEmbeddedJson("<html><body><p>hola</p></body></html>"), []);
 });
+
+test("una respuesta que ya es JSON (page-data de Gatsby) se devuelve entera", () => {
+  const body = JSON.stringify({ result: { data: { allEvent: { nodes: [{ name: "Skate Market", startDate: "2026-11-14T10:00:00-05:00" }] } } } });
+  assert.deepEqual(extractEmbeddedJson(`  ${body}`), [{ label: "respuesta JSON", value: JSON.parse(body) }]);
+});
+
+test("una respuesta que empieza como JSON pero esta rota da una lista vacia", () => {
+  assert.deepEqual(extractEmbeddedJson(`{"a": `), []);
+});
