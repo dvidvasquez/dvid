@@ -219,7 +219,7 @@ function readPage(
   };
 }
 
-const MAX_FOLLOW_DETAIL = 320;
+const MAX_FOLLOW_DETAIL = 700;
 
 /** Ultimos tramos de una URL, para nombrarla en el panel. */
 function shortUrl(url: string): string {
@@ -237,16 +237,21 @@ async function fetchFicha(
   follow: NonNullable<JsonLdPage["follow"]>,
 ): Promise<{ read: PageResult; text: string } | null> {
   const dataUrl = follow.gatsbyPrefix === undefined ? null : toGatsbyPageDataUrl(url, follow.gatsbyPrefix);
+  let dataDetail = "";
   if (dataUrl) {
     const data = await fetchText(dataUrl, "application/json");
     if (data.ok) {
       const read = readPage(data.text, source, page, url, true);
       if (read.events.length > 0) return { read, text: "" };
+      dataDetail = `page-data: ${read.detail} · página: `;
     }
   }
 
   const response = await fetchText(url, HTML_ACCEPT);
-  return response.ok ? { read: readPage(response.text, source, page, url, true), text: response.text } : null;
+  if (!response.ok) return null;
+
+  const read = readPage(response.text, source, page, url, true);
+  return { read: { ...read, detail: `${dataDetail}${read.detail}` }, text: response.text };
 }
 
 /**
@@ -287,7 +292,7 @@ async function followLinks(
       result.events.push(...read.events);
       result.structured += read.structured;
       if (read.events.length > 0) withEvents += 1;
-      else if (emptyDetails.length < 2) emptyDetails.push(`${shortUrl(batch[index])}: ${read.detail}`);
+      else if (emptyDetails.length < 1) emptyDetails.push(`${shortUrl(batch[index])}: ${read.detail}`);
 
       for (const link of extractLinks(response.text, batch[index], follow.contains)) {
         if (!seen.has(link)) {
@@ -300,7 +305,7 @@ async function followLinks(
 
   const summary = `${shortUrl(page.url)}: ${followed} de ${seen.size} fichas leídas, ${withEvents} con evento${failed > 0 ? `, ${failed} fallaron` : ""}`;
   result.detail = `enlaces a fichas: ${seen.size}`;
-  result.followNote = withEvents === 0 && emptyDetails.length > 0 ? `${summary} (${emptyDetails.join(" · ").slice(0, MAX_FOLLOW_DETAIL)})` : summary;
+  result.followNote = withEvents * 2 < followed && emptyDetails.length > 0 ? `${summary} (${emptyDetails.join(" · ").slice(0, MAX_FOLLOW_DETAIL)})` : summary;
   return result;
 }
 
