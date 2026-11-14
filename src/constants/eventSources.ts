@@ -14,11 +14,8 @@ export type JsonLdPage = {
   follow?: {
     contains: string;
     max: number;
-    /**
-     * Sitio Gatsby cuyas fichas llegan sin datos en el HTML: de cada ficha se lee primero su
-     * `page-data.json`. Es la carpeta donde vive el sitio (`/agenda`; vacio si esta en la raiz).
-     */
-    gatsbyPrefix?: string;
+    /** Las fichas no traen datos estructurados: la fecha se lee del texto en español ("Sábado 14 de noviembre"). */
+    spanishDates?: boolean;
   };
   /** Las fechas vienen marcadas como UTC (`Z`) pero son hora de Colombia. */
   utcIsLocalTime?: boolean;
@@ -123,16 +120,16 @@ export const EVENT_SOURCES: EventSource[] = [
   },
   {
     // Agenda cultural de Comfama (Bodega, Claustro, teatros, parques): ahi salen el Medellín Skate
-    // Market y sus festivales. Es un sitio Gatsby que arma los listados en el navegador y cuyas
-    // fichas llegan casi siempre sin datos en el HTML: se leen las fichas del sitemap (unas 300)
-    // desde su `page-data.json`. Marca la hora local como UTC.
+    // Market y sus festivales. Los listados se arman en el navegador y casi ninguna ficha trae
+    // JSON-LD en el HTML: se leen las fichas del sitemap (unas 300) y, si no traen datos, la fecha
+    // escrita en sus titulos. Las que si traen JSON-LD marcan la hora local como UTC.
     nombre: "Comfama",
     url: `${COMFAMA_AGENDA}/`,
     kind: "jsonld",
     pages: [
       {
         url: `${COMFAMA_AGENDA}/sitemap-0.xml`,
-        follow: { contains: "/agenda/evento/", max: 320, gatsbyPrefix: "/agenda" },
+        follow: { contains: "/agenda/evento/", max: 320, spanishDates: true },
         utcIsLocalTime: true,
       },
     ],
